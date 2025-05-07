@@ -31,6 +31,8 @@ public extension StarField {
                     viewSize: drawSize)
 
                 Canvas { context, _ in
+
+                    // Draw stars (to do: abstract visual representation).
                     stars.forEach { star in
                         guard
                             let plot = plotter.plot(star.position)
@@ -38,23 +40,36 @@ public extension StarField {
 
                         let radius = max(1.0, 10.0 - star.magnitude)
                         let hradius = 0.5 * radius
+                        let c = CGRect(
+                            x: plot.x - hradius,
+                            y: plot.y - hradius,
+                            width: radius,
+                            height: radius)
 
-                        let c = CGRect(x: plot.x - hradius, y: plot.y - hradius, width: radius, height: radius)
                         context.fill(Path(ellipseIn: c), with: .color(.black))
                     }
 
-                    [0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0, 110.0, 120.0, 130.0, 140.0, 150.0, 160.0, 170.0].forEach { degs in
-                        let ps = latitudePaths(Angle(degrees: degs), plotter: plotter)
-                        for p in ps {
-                            context.stroke(p, with: .color(Color(red: 128/255.0, green: 128/255.0, blue: 128/255.0)))
-                        }
+                    // Draw lines of latitude.
+                    configuration
+                        .showLinesOfLatitude
+                        .enumerateForLatitude()
+                        .forEach { angle in
+                            let ps = latitudePaths(angle, plotter: plotter)
+
+                            for p in ps {
+                                context.stroke(p, with: .color(Color(red: 128/255.0, green: 128/255.0, blue: 128/255.0)))
+                            }
                     }
 
-                    [0.0, 15.0, 30.0, 45.0, 60.0, 75.0, 90.0, 105.0, 120.0, 135.0, 150.0, 165.0, 180.0, 195.0, 210.0, 225.0, 240.0, 255.0, 270.0, 285.0, 300.0, 315.0, 330.0].forEach { degs in
-                        let ps = longitudePaths(Angle(degrees: degs), plotter: plotter)
-                        for p in ps {
+                    // Draw lines of longitude.
+                    configuration
+                        .showLinesOfLongitude
+                        .enumerateForLongitude()
+                        .forEach { angle in
+                            let ps = longitudePaths(angle, plotter: plotter)
+                            for p in ps {
                             context.stroke(p, with: .color(Color(red: 128/255.0, green: 128/255.0, blue: 128/255.0)))
-                        }
+                            }
                     }
 
                 }

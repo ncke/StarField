@@ -2,7 +2,7 @@ import SwiftUI
 
 public extension StarField {
 
-    public enum ColorScheme {
+    public enum Appearance {
         case standard
     }
 

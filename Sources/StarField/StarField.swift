@@ -1,4 +1,3 @@
-
 import SwiftUI
 
 extension StarField {
@@ -15,12 +14,4 @@ extension StarField {
 
 }
 
-
-//public struct StarFieldEntity: Identifiable {
-//    public let id = UUID()
-//}
-
-public enum StarField {
-
-
-}
+public enum StarField {}
