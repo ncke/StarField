@@ -5,6 +5,7 @@ import SwiftUI
 extension StarField {
 
     protocol Plotter {
+        func minuteScale() -> CGFloat
         func plot(_ position: StarField.Position) -> CGPoint?
     }
 
@@ -14,7 +15,7 @@ extension StarField {
 
 extension StarField {
 
-    struct GnomonicPlotter: Plotter {
+    class GnomonicPlotter: Plotter {
         private let viewCenter: (Angle, Angle)
         private let viewDiameter: Angle
         private let viewSize: CGSize
@@ -24,6 +25,7 @@ extension StarField {
         private let a0: Double
         private let d0: Double
         private let flip: Double
+        private var _minuteScale: CGFloat?
 
         init(
             viewCenter: (Angle, Angle),
@@ -57,6 +59,32 @@ extension StarField {
             let py = yMid - (k * dy)
 
             return CGPoint(x: px, y: py)
+        }
+
+        func minuteScale() -> CGFloat {
+            if let scale = _minuteScale { return scale }
+            let scale = computeOneMinuteLength()
+            _minuteScale = scale
+
+            return scale
+        }
+
+        private static let oneMinuteAngle = Angle(radians: 0.000290888)
+
+        private func computeOneMinuteLength() -> CGFloat {
+            let p1 = plot(
+                StarField.Position(
+                    rightAscension: viewCenter.0,
+                    declination: viewCenter.1)
+            ) ?? CGPointZero
+
+            let p2 = plot(
+                StarField.Position(
+                    rightAscension: viewCenter.0 + Self.oneMinuteAngle,
+                    declination: viewCenter.1)
+            ) ?? CGPointZero
+
+            return abs(p2.x - p1.x)
         }
 
     }

@@ -8,15 +8,18 @@ public extension StarField {
         public var projection: StarField.Projection
         public var showLinesOfLatitude: CoordinateLines
         public var showLinesOfLongitude: CoordinateLines
+        public var colorScheme: StarField.ColorScheme
 
         public init(
             projection: StarField.Projection = .gnomonic,
             showLinesOfLatitude: CoordinateLines = .standard,
-            showLinesOfLongitude: CoordinateLines = .standard
+            showLinesOfLongitude: CoordinateLines = .standard,
+            colorScheme: StarField.ColorScheme = StandardColorScheme()
         ) {
             self.projection = projection
             self.showLinesOfLatitude = showLinesOfLatitude
             self.showLinesOfLongitude = showLinesOfLongitude
+            self.colorScheme = colorScheme
         }
     }
 
