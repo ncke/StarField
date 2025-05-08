@@ -41,6 +41,11 @@ public extension StarField {
                         stars: stars,
                         configuration: configuration,
                         plotter: plotter)
+
+                    NamesView(
+                        stars: stars,
+                        configuration: configuration,
+                        plotter: plotter)
                 }
             }
             .frame(width: size?.width, height: size?.height)
