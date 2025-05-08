@@ -35,6 +35,29 @@ extension StarField {
 
 extension StarField.Star: Drawable {
 
+    private func radius(plotter: StarField.Plotter) -> CGFloat {
+        let sized = max(1.0, 10.0 - magnitude) * 10.0 * plotter.minuteScale()
+        return (0.5 * sized).rounded(.up)
+    }
+
+    private func wingLength(radius: CGFloat) -> CGFloat {
+        return max(0.7 * radius, 1.0)
+    }
+
+    func obscures(plotter: StarField.Plotter) -> StarField.Obscurement? {
+        guard let plot = plotter.plot(position) else { return nil }
+
+        let radius = radius(plotter: plotter)
+        let wing = isDoubleStar ? wingLength(radius: radius) : 0
+        let boundingRect = CGRect(
+            x: plot.x - radius - wing,
+            y: plot.y - radius,
+            width: 2 * (radius + wing),
+            height: 2 * radius)
+
+        return .ellipse(rect: boundingRect)
+    }
+
     func draw(
         in context: GraphicsContext,
         plotter: StarField.Plotter,
@@ -47,12 +70,10 @@ extension StarField.Star: Drawable {
             configuration.colorScheme.fieldBackground
         )
 
-        guard
-            let plot = plotter.plot(position)
-        else { return }
+        guard let plot = plotter.plot(position) else { return }
 
         let sized = max(1.0, 10.0 - magnitude) * 10.0 * plotter.minuteScale()
-        let radius = (0.5 * sized).rounded(.up)
+        let radius = radius(plotter: plotter)
         let diameter  = 2.0 * radius
 
         let starEllipse = CGRect(
@@ -94,7 +115,7 @@ extension StarField.Star: Drawable {
         plot: CGPoint,
         radius: CGFloat
     ) {
-        let wingLength = max(0.7 * radius, 1.0)
+        let wingLength = wingLength(radius: radius)
 
         var leftWing = Path()
         let lx = plot.x - radius
