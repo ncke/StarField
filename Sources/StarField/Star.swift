@@ -51,39 +51,85 @@ extension StarField.Star: Drawable {
             let plot = plotter.plot(position)
         else { return }
 
-        let radius = max(1.0, 10.0 - magnitude) * 10.0 * plotter.minuteScale()
-        let hradius = 0.5 * radius
+        let sized = max(1.0, 10.0 - magnitude) * 10.0 * plotter.minuteScale()
+        let radius = (0.5 * sized).rounded(.up)
+        let diameter  = 2.0 * radius
+
         let starEllipse = CGRect(
-            x: plot.x - hradius,
-            y: plot.y - hradius,
-            width: radius,
-            height: radius)
+            x: plot.x - radius,
+            y: plot.y - radius,
+            width: diameter,
+            height: diameter)
 
         let aura: CGFloat = 2
         let auraEllipse = CGRect(
-            x: plot.x - (hradius + aura),
-            y: plot.y - (hradius + aura),
-            width: radius + 2 * aura,
-            height: radius + 2 * aura)
+            x: plot.x - (radius + aura),
+            y: plot.y - (radius + aura),
+            width: diameter + 2 * aura,
+            height: diameter + 2 * aura)
 
         context.fill(Path(ellipseIn: auraEllipse), with: auraShading)
         context.fill(Path(ellipseIn: starEllipse), with: starShading)
 
         if isDoubleStar {
-            let wingLength = 0.8 * hradius
-
-            var leftWing = Path()
-            let lx = plot.x - hradius
-            leftWing.move(to: CGPoint(x: lx, y: plot.y))
-            leftWing.addLine(to: CGPoint(x: lx - wingLength, y: plot.y))
-            context.stroke(leftWing, with: starShading)
-
-            var rightWing = Path()
-            let rx = plot.x + hradius
-            rightWing.move(to: CGPoint(x: rx, y: plot.y))
-            rightWing.addLine(to: CGPoint(x: rx + wingLength, y: plot.y))
-            context.stroke(rightWing, with: starShading)
+            drawDoubleStarWings(
+                in: context,
+                with: starShading,
+                plot: plot,
+                radius: radius)
         }
+
+        if isVariableStar {
+            drawVariableStarShell(
+                in: context,
+                with: auraShading,
+                plot: plot,
+                radius: radius)
+        }
+    }
+
+    private func drawDoubleStarWings(
+        in context: GraphicsContext,
+        with shading: GraphicsContext.Shading,
+        plot: CGPoint,
+        radius: CGFloat
+    ) {
+        let wingLength = max(0.7 * radius, 1.0)
+
+        var leftWing = Path()
+        let lx = plot.x - radius
+        leftWing.move(to: CGPoint(x: lx, y: plot.y))
+        leftWing.addLine(to: CGPoint(x: lx - wingLength, y: plot.y))
+        context.stroke(leftWing, with: shading)
+
+        var rightWing = Path()
+        let rx = plot.x + radius
+        rightWing.move(to: CGPoint(x: rx, y: plot.y))
+        rightWing.addLine(to: CGPoint(x: rx + wingLength, y: plot.y))
+        context.stroke(rightWing, with: shading)
+    }
+
+    private func drawVariableStarShell(
+        in context: GraphicsContext,
+        with shading: GraphicsContext.Shading,
+        plot: CGPoint,
+        radius: CGFloat
+    ) {
+        let shellHalfWidth = max((0.1 * radius).rounded(.down), 0.5)
+        let shellLineWidth = 2 * shellHalfWidth
+        let shellRadius = max(radius - shellLineWidth - shellHalfWidth, 0)
+        let shellDiameter = 2 * shellRadius
+
+        let shellEllipse = CGRect(
+            x: plot.x - shellRadius,
+            y: plot.y - shellRadius,
+            width: shellDiameter,
+            height: shellDiameter)
+
+        context.stroke(
+            Path(ellipseIn: shellEllipse),
+            with: shading,
+            lineWidth: shellLineWidth)
     }
 
 }
