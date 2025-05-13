@@ -45,7 +45,10 @@ extension StarField.Star: Drawable {
     }
 
     func obscures(plotter: StarField.Plotter) -> StarField.Obscurement? {
-        guard let plot = plotter.plot(position) else { return nil }
+        guard
+            let plot = plotter.plot(position),
+            plotter.isPlotNearView(plot)
+        else { return nil }
 
         let radius = radius(plotter: plotter)
         let wing = isDoubleStar ? wingLength(radius: radius) : 0
@@ -70,7 +73,10 @@ extension StarField.Star: Drawable {
             configuration.colorScheme.fieldBackground
         )
 
-        guard let plot = plotter.plot(position) else { return }
+        guard
+            let plot = plotter.plot(position),
+            plotter.isPlotNearView(plot)
+        else { return }
 
         let sized = max(1.0, 10.0 - magnitude) * 10.0 * plotter.minuteScale()
         let radius = radius(plotter: plotter)
@@ -116,18 +122,16 @@ extension StarField.Star: Drawable {
         radius: CGFloat
     ) {
         let wingLength = wingLength(radius: radius)
+        var wings = Path()
 
-        var leftWing = Path()
-        let lx = plot.x - radius
-        leftWing.move(to: CGPoint(x: lx, y: plot.y))
-        leftWing.addLine(to: CGPoint(x: lx - wingLength, y: plot.y))
-        context.stroke(leftWing, with: shading)
+        func drawLine(_ x1: CGFloat, _ x2: CGFloat) {
+            wings.move(to: CGPoint(x: x1, y: plot.y))
+            wings.addLine(to: CGPoint(x: x2, y: plot.y))
+        }
 
-        var rightWing = Path()
-        let rx = plot.x + radius
-        rightWing.move(to: CGPoint(x: rx, y: plot.y))
-        rightWing.addLine(to: CGPoint(x: rx + wingLength, y: plot.y))
-        context.stroke(rightWing, with: shading)
+        drawLine(plot.x - radius, plot.x - radius - wingLength)
+        drawLine(plot.x + radius, plot.x + radius + wingLength)
+        context.stroke(wings, with: shading)
     }
 
     private func drawVariableStarShell(

@@ -7,6 +7,7 @@ extension StarField {
     protocol Plotter {
         func minuteScale() -> CGFloat
         func plot(_ position: StarField.Position) -> CGPoint?
+        func isPlotNearView(_ plot: CGPoint) -> Bool
     }
 
 }
@@ -48,7 +49,8 @@ extension StarField {
             let d = position.declination.radians
 
             let dd = sin(d0) * sin(d) + cos(d0) * cos(d) * cos(a - a0)
-            guard dd > 0.01 else {
+            guard dd > -0.5 else {
+            //guard dd > 0.01 else {
                 // Object is behind the view plane.
                 return nil
             }
@@ -59,6 +61,21 @@ extension StarField {
             let py = yMid - (k * dy)
 
             return CGPoint(x: px, y: py)
+        }
+
+        private static let nearViewMargin: CGFloat = 30.0
+
+        func isPlotNearView(_ plot: CGPoint) -> Bool {
+            guard
+                plot.x >= -Self.nearViewMargin,
+                plot.x <= viewSize.width + Self.nearViewMargin,
+                plot.y >= -Self.nearViewMargin,
+                plot.y <= viewSize.height + Self.nearViewMargin
+            else {
+                return false
+            }
+
+            return true
         }
 
         func minuteScale() -> CGFloat {

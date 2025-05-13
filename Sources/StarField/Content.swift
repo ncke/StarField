@@ -8,7 +8,7 @@ public extension StarField {
         public var viewCenter: (Angle, Angle)
         public var diameter: Angle
         public var size: CGSize? = nil
-        @ObservedObject public var configuration: StarField.Configuration
+        public var configuration: StarField.Configuration
 
         public var stars: [Star]
 
@@ -33,20 +33,12 @@ public extension StarField {
                     viewSize: drawSize)
 
                 ZStack {
-                    CoordinateLinesView(
-                        configuration: configuration,
-                        plotter: plotter)
-
-                    StarsView(
-                        stars: stars,
-                        configuration: configuration,
-                        plotter: plotter)
-
-                    NamesView(
-                        stars: stars,
-                        configuration: configuration,
-                        plotter: plotter)
+                    CoordinateLinesView(plotter: plotter)
+                    StarsView(stars: stars, plotter: plotter)
+                    NamesView(stars: stars, plotter: plotter)
                 }
+                .environmentObject(configuration)
+
             }
             .frame(width: size?.width, height: size?.height)
             .background(configuration.colorScheme.fieldBackground)

@@ -5,8 +5,8 @@ import SwiftUI
 extension StarField {
 
     struct StarsView: SwiftUI.View {
+        @EnvironmentObject var configuration: Configuration
         let stars: [Star]
-        let configuration: StarField.Configuration
         let plotter: StarField.Plotter
 
         public var body: some View {

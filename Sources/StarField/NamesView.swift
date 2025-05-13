@@ -3,8 +3,8 @@ import SwiftUI
 extension StarField {
 
     struct NamesView: SwiftUI.View {
+        @EnvironmentObject var configuration: Configuration
         let stars: [StarField.Star]
-        let configuration: StarField.Configuration
         let plotter: StarField.Plotter
 
         var body: some View {
@@ -44,8 +44,6 @@ extension StarField {
                 return (s.id, obs)
             }
 
-            print("obs: ", obsLookup)
-
             self.stars = Dictionary(uniqueKeysWithValues: starsLookup)
             self.plotter = plotter
             self.context = context
@@ -56,7 +54,11 @@ extension StarField {
                 .sorted(by: { s1, s2 in s1.magnitude < s2.magnitude })
                 .map { s in s.id }
 
-            for star in stars {
+            for starId in priorityList {
+                guard let star = self.stars[starId] else {
+                    continue
+                }
+                
                 place(nameForStar: star)
             }
         }
@@ -70,7 +72,7 @@ extension StarField {
                 return
             }
 
-            context.stroke(Path(ellipseIn: CGRect(x: 0.0, y: 0.0, width: 40.0, height: 40.0)), with: .color(.red))
+            print(star)
 
             let text = Text(name).font(.system(size: 12))
             let resolved = context.resolve(text)
@@ -97,10 +99,14 @@ extension StarField {
 
                 nameObscurements[star.id] = .rect(rect: nameRect)
 
+                print(name, nameRect)
+
                 context.draw(
                     resolved,
                     at: CGPoint(x: nameRect.midX, y: nameRect.midY),
                     anchor: .center)
+
+                break
             }
 
         }
@@ -144,9 +150,11 @@ extension StarField {
             let xHook = targetRadius * cos(hookAngle.radians)
             let yHook = targetRadius * sin(hookAngle.radians)
 
+            context.fill(Path(targetRect), with: .color(.red))
+
             return CGRect(
-                x: xHook - ox,
-                y: yHook - oy,
+                x: targetRect.midX + xHook - ox,
+                y: targetRect.midY + yHook - oy,
                 width: nameSize.width,
                 height: nameSize.height)
         }
