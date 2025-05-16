@@ -4,13 +4,13 @@ extension StarField {
 
     struct NamesView: SwiftUI.View {
         @EnvironmentObject var configuration: Configuration
-        let stars: [StarField.Star]
+        let objects: [StarField.Object]
         let plotter: StarField.Plotter
 
         var body: some View {
             Canvas { context, size in
                 let placer = Placer(
-                    stars: stars,
+                    objects: objects,
                     plotter: plotter,
                     context: context,
                     size: size)
@@ -24,7 +24,7 @@ extension StarField {
 extension StarField {
 
     private struct Placer {
-        private let stars: [UUID: StarField.Star]
+        private let objects: [UUID: StarField.Object]
         private let plotter: StarField.Plotter
         private let starObscurements: [UUID: Obscurement]
         private var nameObscurements: [UUID: Obscurement]
@@ -33,46 +33,46 @@ extension StarField {
         private let size: CGSize
 
         init(
-            stars: [StarField.Star],
+            objects: [StarField.Object],
             plotter: StarField.Plotter,
             context: GraphicsContext,
             size: CGSize
         ) {
-            let starsLookup = stars.map { s in (s.id, s) }
-            let obsLookup: [(UUID, Obscurement)] = stars.compactMap { s in
+            let starsLookup = objects.map { s in (s.id, s) }
+            let obsLookup: [(UUID, Obscurement)] = objects.compactMap { s in
                 guard let obs = s.obscures(plotter: plotter) else { return nil }
                 return (s.id, obs)
             }
 
-            self.stars = Dictionary(uniqueKeysWithValues: starsLookup)
+            self.objects = Dictionary(uniqueKeysWithValues: starsLookup)
             self.plotter = plotter
             self.context = context
             self.size = size
             self.starObscurements = Dictionary(uniqueKeysWithValues: obsLookup)
             self.nameObscurements = [:]
-            self.priorityList = stars
+            self.priorityList = objects
                 .sorted(by: { s1, s2 in s1.magnitude < s2.magnitude })
                 .map { s in s.id }
 
             for starId in priorityList {
-                guard let star = self.stars[starId] else {
+                guard let star = self.objects[starId] else {
                     continue
                 }
-                
-                place(nameForStar: star)
+
+                place(nameForObject: star)
             }
         }
 
-        mutating func place(nameForStar star: Star) {
+        mutating func place(nameForObject object: Object) {
             guard
-                let name = star.names.first,
+                let name = object.names.first,
                 !name.isEmpty,
-                let starObs = starObscurements[star.id]
+                let starObs = starObscurements[object.id]
             else {
                 return
             }
 
-            print(star)
+            print(object)
 
             let text = Text(name).font(.system(size: 12))
             let resolved = context.resolve(text)
@@ -97,7 +97,7 @@ extension StarField {
 
                 guard nameObs.isEmpty else { continue }
 
-                nameObscurements[star.id] = .rect(rect: nameRect)
+                nameObscurements[object.id] = .rect(rect: nameRect)
 
                 print(name, nameRect)
 
@@ -150,7 +150,7 @@ extension StarField {
             let xHook = targetRadius * cos(hookAngle.radians)
             let yHook = targetRadius * sin(hookAngle.radians)
 
-            context.fill(Path(targetRect), with: .color(.red))
+            //context.fill(Path(targetRect), with: .color(.red))
 
             return CGRect(
                 x: targetRect.midX + xHook - ox,

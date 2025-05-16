@@ -56,10 +56,9 @@ extension StarField.CoordinateLinesView {
         (0...120).map { i in Double(3 * i) }
     }()
 
-    private static let longitudeGreatCircle = [
-        -80.0, -70.0, -60.0, -50.0, -40.0, -30.0, -20.0, -10.0,
-         0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0
-    ]
+    private static let longitudeGreatCircle: [Double] = {
+        (-8...8).map { i in Double(10 * i) }
+    }()
 
     private func makePaths(
         plotter: StarField.Plotter,

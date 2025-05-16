@@ -8,19 +8,19 @@ public extension StarField {
         public var viewCenter: (Angle, Angle)
         public var diameter: Angle
         public var size: CGSize? = nil
-        public var configuration: StarField.Configuration
+        public var configuration: Configuration
 
-        public var stars: [Star]
+        public var objects: [Object]
 
         public init(
             viewCenter: (Angle, Angle),
             diameter: Angle,
-            stars: [Star],
-            configuration: StarField.Configuration = StarField.Configuration()
+            objects: [Object],
+            configuration: Configuration = Configuration()
         ) {
             self.viewCenter = viewCenter
             self.diameter = diameter
-            self.stars = stars
+            self.objects = objects
             self.configuration = configuration
         }
 
@@ -34,8 +34,8 @@ public extension StarField {
 
                 ZStack {
                     CoordinateLinesView(plotter: plotter)
-                    StarsView(stars: stars, plotter: plotter)
-                    NamesView(stars: stars, plotter: plotter)
+                    ObjectsView(objects: objects, plotter: plotter)
+                    NamesView(objects: objects, plotter: plotter)
                 }
                 .environmentObject(configuration)
 

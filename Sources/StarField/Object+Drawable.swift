@@ -1,48 +1,6 @@
 import SwiftUI
 
-// MARK: - Star
-
-extension StarField {
-
-    public struct Star: Identifiable {
-        public let id: UUID
-        let position: Position
-        let magnitude: Double
-        let isDoubleStar: Bool
-        let isVariableStar: Bool
-        let names: [String]
-
-        public init(
-            id: UUID,
-            position: Position,
-            magnitude: Double,
-            isDoubleStar: Bool,
-            isVariableStar: Bool,
-            names: [String]
-        ) {
-            self.id = id
-            self.position = position
-            self.magnitude = magnitude
-            self.isDoubleStar = isDoubleStar
-            self.isVariableStar = isVariableStar
-            self.names = names
-        }
-    }
-
-}
-
-// MARK: - Star Drawable
-
-extension StarField.Star: Drawable {
-
-    private func radius(plotter: StarField.Plotter) -> CGFloat {
-        let sized = max(1.0, 10.0 - magnitude) * 10.0 * plotter.minuteScale()
-        return (0.5 * sized).rounded(.up)
-    }
-
-    private func wingLength(radius: CGFloat) -> CGFloat {
-        return max(0.7 * radius, 1.0)
-    }
+extension StarField.Object: Drawable {
 
     func obscures(plotter: StarField.Plotter) -> StarField.Obscurement? {
         guard
@@ -50,13 +8,18 @@ extension StarField.Star: Drawable {
             plotter.isPlotNearView(plot)
         else { return nil }
 
-        let radius = radius(plotter: plotter)
-        let wing = isDoubleStar ? wingLength(radius: radius) : 0
+        let yRadius = radius(plotter: plotter)
+        var xRadius = yRadius
+
+        if case let .star(isDouble, _) = self.type {
+            xRadius += wingLength(radius: yRadius)
+        }
+
         let boundingRect = CGRect(
-            x: plot.x - radius - wing,
-            y: plot.y - radius,
-            width: 2 * (radius + wing),
-            height: 2 * radius)
+            x: plot.x - xRadius,
+            y: plot.y - yRadius,
+            width: 2 * xRadius,
+            height: 2 * yRadius)
 
         return .ellipse(rect: boundingRect)
     }
@@ -66,7 +29,8 @@ extension StarField.Star: Drawable {
         plotter: StarField.Plotter,
         configuration: StarField.Configuration
     ) {
-        let starShading = GraphicsContext.Shading.color( configuration.colorScheme.colorForStars
+        let starShading = GraphicsContext.Shading.color(
+            configuration.colorScheme.colorForStars
         )
 
         let auraShading = GraphicsContext.Shading.color (
@@ -98,7 +62,7 @@ extension StarField.Star: Drawable {
         context.fill(Path(ellipseIn: auraEllipse), with: auraShading)
         context.fill(Path(ellipseIn: starEllipse), with: starShading)
 
-        if isDoubleStar {
+        if hasWings {
             drawDoubleStarWings(
                 in: context,
                 with: starShading,
@@ -106,13 +70,23 @@ extension StarField.Star: Drawable {
                 radius: radius)
         }
 
-        if isVariableStar {
+        if hasInnerCircle {
             drawVariableStarShell(
                 in: context,
                 with: auraShading,
                 plot: plot,
                 radius: radius)
         }
+    }
+
+    private var hasWings: Bool {
+        if case let .star(isDouble, _) = self.type { return isDouble }
+        return false
+    }
+
+    private var hasInnerCircle: Bool {
+        if case let .star(_, isVariable) = self.type { return isVariable }
+        return false
     }
 
     private func drawDoubleStarWings(
@@ -155,6 +129,15 @@ extension StarField.Star: Drawable {
             Path(ellipseIn: shellEllipse),
             with: shading,
             lineWidth: shellLineWidth)
+    }
+
+    private func radius(plotter: StarField.Plotter) -> CGFloat {
+        let sized = max(1.0, 10.0 - magnitude) * 10.0 * plotter.minuteScale()
+        return (0.5 * sized).rounded(.up)
+    }
+
+    private func wingLength(radius: CGFloat) -> CGFloat {
+        return max(0.7 * radius, 1.0)
     }
 
 }

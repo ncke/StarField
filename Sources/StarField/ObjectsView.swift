@@ -4,15 +4,15 @@ import SwiftUI
 
 extension StarField {
 
-    struct StarsView: SwiftUI.View {
+    struct ObjectsView: SwiftUI.View {
         @EnvironmentObject var configuration: Configuration
-        let stars: [Star]
+        let objects: [Object]
         let plotter: StarField.Plotter
 
         public var body: some View {
             Canvas { context, _ in
-                stars.forEach { star in
-                    star.draw(
+                objects.forEach { object in
+                    object.draw(
                         in: context,
                         plotter: plotter,
                         configuration: configuration)
