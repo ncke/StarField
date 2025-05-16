@@ -4,14 +4,14 @@ extension StarField {
 
     struct NamesView: SwiftUI.View {
         @EnvironmentObject var configuration: Configuration
-        let objects: [StarField.Object]
-        let plotter: StarField.Plotter
+        let objects: [Object]
+        let projector: Projector
 
         var body: some View {
             Canvas { context, size in
                 let placer = Placer(
                     objects: objects,
-                    plotter: plotter,
+                    projector: projector,
                     context: context,
                     size: size)
             }
@@ -25,7 +25,7 @@ extension StarField {
 
     private struct Placer {
         private let objects: [UUID: StarField.Object]
-        private let plotter: StarField.Plotter
+        private let projector: Projector
         private let starObscurements: [UUID: Obscurement]
         private var nameObscurements: [UUID: Obscurement]
         private let priorityList: [UUID]
@@ -34,18 +34,18 @@ extension StarField {
 
         init(
             objects: [StarField.Object],
-            plotter: StarField.Plotter,
+            projector: Projector,
             context: GraphicsContext,
             size: CGSize
         ) {
             let starsLookup = objects.map { s in (s.id, s) }
             let obsLookup: [(UUID, Obscurement)] = objects.compactMap { s in
-                guard let obs = s.obscures(plotter: plotter) else { return nil }
+                guard let obs = s.obscures(projector: projector) else { return nil }
                 return (s.id, obs)
             }
 
             self.objects = Dictionary(uniqueKeysWithValues: starsLookup)
-            self.plotter = plotter
+            self.projector = projector
             self.context = context
             self.size = size
             self.starObscurements = Dictionary(uniqueKeysWithValues: obsLookup)

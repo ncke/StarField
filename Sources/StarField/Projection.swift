@@ -10,19 +10,19 @@ public extension StarField {
 
 }
 
-// MARK: - Plotter Factory
+// MARK: - Projector Factory
 
 extension StarField.Projection {
 
-    func makePlotter(
+    func makeProjector(
         viewCenter: (Angle, Angle),
         viewDiameter: Angle,
         viewSize: CGSize
-    ) -> StarField.Plotter {
+    ) -> StarField.Projector {
         switch self {
 
         case .gnomonic:
-            return StarField.GnomonicPlotter(
+            return StarField.GnomonicProjector(
                 viewCenter: viewCenter,
                 viewDiameter: viewDiameter,
                 viewSize: viewSize)

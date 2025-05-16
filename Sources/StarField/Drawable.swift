@@ -6,10 +6,10 @@ protocol Drawable {
 
     func draw(
         in context: GraphicsContext,
-        plotter: StarField.Plotter,
+        projector: StarField.Projector,
         configuration: StarField.Configuration)
 
-    func obscures(plotter: StarField.Plotter) -> StarField.Obscurement?
+    func obscures(projector: StarField.Projector) -> StarField.Obscurement?
 
 }
 

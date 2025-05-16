@@ -1,10 +1,10 @@
 import SwiftUI
 
-// MARK: - Plotter
+// MARK: - Projector
 
 extension StarField {
 
-    protocol Plotter {
+    protocol Projector {
         func minuteScale() -> CGFloat
         func plot(_ position: StarField.Position) -> CGPoint?
         func isPlotNearView(_ plot: CGPoint) -> Bool
@@ -12,11 +12,11 @@ extension StarField {
 
 }
 
-// MARK: - Gnomonic Plotter
+// MARK: - Gnomonic Projector
 
 extension StarField {
 
-    class GnomonicPlotter: Plotter {
+    class GnomonicProjector: Projector {
         private let viewCenter: (Angle, Angle)
         private let viewDiameter: Angle
         private let viewSize: CGSize

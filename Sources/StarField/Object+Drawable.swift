@@ -2,13 +2,13 @@ import SwiftUI
 
 extension StarField.Object: Drawable {
 
-    func obscures(plotter: StarField.Plotter) -> StarField.Obscurement? {
+    func obscures(projector: StarField.Projector) -> StarField.Obscurement? {
         guard
-            let plot = plotter.plot(position),
-            plotter.isPlotNearView(plot)
+            let plot = projector.plot(position),
+            projector.isPlotNearView(plot)
         else { return nil }
 
-        let yRadius = radius(plotter: plotter)
+        let yRadius = radius(projector: projector)
         var xRadius = yRadius
 
         if case let .star(isDouble, _) = self.type {
@@ -26,7 +26,7 @@ extension StarField.Object: Drawable {
 
     func draw(
         in context: GraphicsContext,
-        plotter: StarField.Plotter,
+        projector: StarField.Projector,
         configuration: StarField.Configuration
     ) {
         let starShading = GraphicsContext.Shading.color(
@@ -38,12 +38,12 @@ extension StarField.Object: Drawable {
         )
 
         guard
-            let plot = plotter.plot(position),
-            plotter.isPlotNearView(plot)
+            let plot = projector.plot(position),
+            projector.isPlotNearView(plot)
         else { return }
 
-        let sized = max(1.0, 10.0 - magnitude) * 10.0 * plotter.minuteScale()
-        let radius = radius(plotter: plotter)
+        let sized = max(1.0, 10.0 - magnitude) * 10.0 * projector.minuteScale()
+        let radius = radius(projector: projector)
         let diameter  = 2.0 * radius
 
         let starEllipse = CGRect(
@@ -131,8 +131,8 @@ extension StarField.Object: Drawable {
             lineWidth: shellLineWidth)
     }
 
-    private func radius(plotter: StarField.Plotter) -> CGFloat {
-        let sized = max(1.0, 10.0 - magnitude) * 10.0 * plotter.minuteScale()
+    private func radius(projector: StarField.Projector) -> CGFloat {
+        let sized = max(1.0, 10.0 - magnitude) * 10.0 * projector.minuteScale()
         return (0.5 * sized).rounded(.up)
     }
 

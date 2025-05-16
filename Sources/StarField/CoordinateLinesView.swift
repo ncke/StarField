@@ -6,7 +6,7 @@ extension StarField {
 
     struct CoordinateLinesView: SwiftUI.View {
         @EnvironmentObject var configuration: Configuration
-        let plotter: StarField.Plotter
+        let projector: Projector
 
         public var body: some View {
             let cs = configuration.colorScheme
@@ -18,7 +18,7 @@ extension StarField {
 
                 let latLines = configuration.showLinesOfLatitude
                 let latPaths = makePaths(
-                    plotter: plotter,
+                    plotter: projector,
                     angles: latLines.enumerateForLatitude(),
                     greatCircle: Self.latitudeGreatCircle) {
                         lat, gc in
@@ -29,7 +29,7 @@ extension StarField {
 
                 let lonLines = configuration.showLinesOfLongitude
                 let lonPaths = makePaths(
-                    plotter: plotter,
+                    plotter: projector,
                     angles: lonLines.enumerateForLongitude(),
                     greatCircle: Self.longitudeGreatCircle) {
                         lon, gc in
@@ -50,18 +50,18 @@ extension StarField {
 
 // MARK: - Great Circle Path Factory
 
-extension StarField.CoordinateLinesView {
+private extension StarField.CoordinateLinesView {
 
-    private static let latitudeGreatCircle: [Double] = {
+    static let latitudeGreatCircle: [Double] = {
         (0...120).map { i in Double(3 * i) }
     }()
 
-    private static let longitudeGreatCircle: [Double] = {
+    static let longitudeGreatCircle: [Double] = {
         (-8...8).map { i in Double(10 * i) }
     }()
 
-    private func makePaths(
-        plotter: StarField.Plotter,
+    func makePaths(
+        plotter: StarField.Projector,
         angles: [Angle],
         greatCircle: [Double],
         positioner: (Angle, Angle) -> StarField.Position

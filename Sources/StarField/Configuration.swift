@@ -5,13 +5,13 @@ import SwiftUI
 public extension StarField {
 
     public class Configuration: ObservableObject {
-        public var projection: StarField.Projection
+        public var projection: Projection
         public var showLinesOfLatitude: CoordinateLines
         public var showLinesOfLongitude: CoordinateLines
-        public var colorScheme: StarField.ColorScheme
+        public var colorScheme: ColorScheme
 
         public init(
-            projection: StarField.Projection = .gnomonic,
+            projection: Projection = .gnomonic,
             showLinesOfLatitude: CoordinateLines = .standard,
             showLinesOfLongitude: CoordinateLines = .standard,
             colorScheme: StarField.ColorScheme = StandardColorScheme()
