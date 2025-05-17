@@ -25,23 +25,38 @@ public extension StarField {
 
         public var body: some View {
             GeometryReader { geometry in
-                let drawSize = size ?? geometry.size
-                let projection = configuration.projection
-                let projector = projection.makeProjector(
+                let viewSize = size ?? geometry.size
+                let layout = Layout(
+                    objects: objects,
+                    configuration: configuration,
                     viewCenter: viewCenter,
                     viewDiameter: diameter,
-                    viewSize: drawSize)
+                    viewSize: viewSize)
 
-                ZStack {
-                    CoordinateLinesView(projector: projector)
-                    ObjectsView(objects: objects, projector: projector)
-                    NamesView(objects: objects, projector: projector)
-                }
-                .environmentObject(configuration)
-
+                GraphicsStack(layout: layout)
+                    .onAppear { layout.build() }
+                    .environmentObject(configuration)
             }
             .frame(width: size?.width, height: size?.height)
             .background(configuration.colorScheme.fieldBackground)
+        }
+
+    }
+
+}
+
+// MARK: - GraphicsStack
+
+private extension StarField {
+
+    struct GraphicsStack: SwiftUI.View {
+        @StateObject var layout: Layout
+
+        var body: some View {
+            ZStack {
+                FurnitureView(graphics: $layout.furnitureGraphics)
+                ObjectsView(graphics: $layout.objectGraphics)
+            }
         }
 
     }
