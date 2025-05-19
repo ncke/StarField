@@ -4,11 +4,7 @@ import SwiftUI
 
 extension StarField.Layout {
 
-    func plotObjects() {
-        objectGraphics = objects.flatMap { object in plotObject(object) }
-    }
-
-    private func plotObject(_ object: StarField.Object) -> [StarField.Graphic] {
+    func plotObject(_ object: StarField.Object) -> [StarField.Graphic] {
         switch object.type {
             
         case .star(let isDouble, let isVariable):
@@ -67,7 +63,7 @@ private extension StarField.Layout {
         _ magnitude: Double,
         projector: StarField.Projector
     ) -> CGFloat {
-        let sized = max(1.0, 10.0 - magnitude) * 10.0 * projector.minuteScale()
+        let sized = max(1.0, 10.0 - magnitude) * 10.0 * minuteScale
         return (0.5 * sized).rounded(.up)
     }
 

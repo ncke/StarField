@@ -4,7 +4,7 @@ import SwiftUI
 
 extension StarField.Layout {
 
-    func plotCoordinateLines() {
+    func plotCoordinateLines() -> [StarField.Graphic] {
         let shading = GraphicsContext.Shading.color(
             configuration.colorScheme.colorForCoordinateLines
         )
@@ -31,7 +31,7 @@ extension StarField.Layout {
                     declination: gc)
             }
 
-        furnitureGraphics = latGraphics + lonGraphics
+        return latGraphics + lonGraphics
     }
 
 }

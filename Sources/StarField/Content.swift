@@ -34,7 +34,7 @@ public extension StarField {
                     viewSize: viewSize)
 
                 GraphicsStack(layout: layout)
-                    .onAppear { layout.build() }
+                    .task { await layout.build() }
                     .environmentObject(configuration)
             }
             .frame(width: size?.width, height: size?.height)
@@ -56,6 +56,7 @@ private extension StarField {
             ZStack {
                 FurnitureView(graphics: $layout.furnitureGraphics)
                 ObjectsView(graphics: $layout.objectGraphics)
+                NamesView(layout: layout, graphics: $layout.nameGraphics)
             }
         }
 
