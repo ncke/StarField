@@ -4,40 +4,40 @@ extension StarField {
 
     struct NamesView: SwiftUI.View {
         @EnvironmentObject var configuration: Configuration
-        var layout: Layout
-        @Binding var graphics: [Graphic]
-
-        class NamesResolver: TextResolver {
-            let context: GraphicsContext
-            let layout: Layout
-
-            init(context: GraphicsContext, layout: Layout) {
-                self.context = context
-                self.layout = layout
-                self.layout.textResolver = self
-            }
-
-            func resolve(_ text: Text) -> GraphicsContext.ResolvedText {
-                context.resolve(text)
-            }
-        }
+        @ObservedObject var layout: Layout
 
         var body: some View {
-            Canvas { context, size in
-                let resolver = NamesResolver(context: context, layout: layout)
+            if layout.isReadyForNames {
 
-                let tx = Text("hello")
-                let re = context.resolve(tx)
+                let nameFont = configuration.nameFont
+                let nameColor = configuration.colorScheme.nameColor
 
-                graphics.forEach { graphic in
-                    switch graphic {
-                    case .resolvedText(let midpoint, let text):
-                        break
-                    default:
-                        break
+                Canvas { context, size in
+                    let resolver: TextResolver = { string in
+                        let text = Text(string)
+                            .font(nameFont)
+                            .foregroundStyle(nameColor)
+
+                        return context.resolve(text)
+                    }
+
+                    let nameGraphics = layout.layoutNames(using: resolver)
+                    nameGraphics.forEach { graphic in
+                        switch graphic {
+
+                        case .resolvedText(let rect, let resolvedText):
+                            context.draw(
+                                resolvedText,
+                                at: CGPoint(x: rect.midX, y: rect.midY),
+                                anchor: .center)
+
+                        default:
+                            break
+                        }
                     }
                 }
-
+            } else {
+                Text("Waiting!!!")
             }
         }
 

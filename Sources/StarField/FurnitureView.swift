@@ -13,7 +13,7 @@ extension StarField {
 
             Canvas { context, _ in
                 let coordinateLineShading = GraphicsContext.Shading.color(
-                    cs.colorForCoordinateLines
+                    cs.coordinateLinesColor
                 )
 
                 for graphic in graphics {

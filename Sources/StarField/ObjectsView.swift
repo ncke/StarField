@@ -10,8 +10,8 @@ extension StarField {
 
         public var body: some View {
             let cs = configuration.colorScheme
-            let ss = GraphicsContext.Shading.color(cs.colorForStars)
-            let au = GraphicsContext.Shading.color(cs.fieldBackground)
+            let ss = GraphicsContext.Shading.color(cs.starColor)
+            let au = GraphicsContext.Shading.color(cs.backgroundColor)
 
             Canvas { context, _ in
                 graphics.forEach { graphic in
@@ -56,11 +56,11 @@ extension StarField {
             context: GraphicsContext
         ) {
             let cs = configuration.colorScheme
-            let ss = GraphicsContext.Shading.color(cs.colorForStars)
+            let ss = GraphicsContext.Shading.color(cs.starColor)
             let diameter = 2 * radius
 
             if configuration.showStarAura {
-                let au = GraphicsContext.Shading.color(cs.fieldBackground)
+                let au = GraphicsContext.Shading.color(cs.backgroundColor)
                 let aura: CGFloat = 2.0
                 let auraDiameter = 2 * (radius + aura)
                 let auraEllipse = CGRect(
@@ -87,7 +87,7 @@ extension StarField {
             context: GraphicsContext
         ) {
             let cs = configuration.colorScheme
-            let bg = GraphicsContext.Shading.color(cs.fieldBackground)
+            let bg = GraphicsContext.Shading.color(cs.backgroundColor)
             fillStarForRadius(radius, center: center, context: context)
 
             let shellHalfWidth = max((0.1 * radius).rounded(.down), 0.5)

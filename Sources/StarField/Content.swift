@@ -34,11 +34,11 @@ public extension StarField {
                     viewSize: viewSize)
 
                 GraphicsStack(layout: layout)
-                    .task { await layout.build() }
+                    .onAppear { layout.build() }
                     .environmentObject(configuration)
             }
             .frame(width: size?.width, height: size?.height)
-            .background(configuration.colorScheme.fieldBackground)
+            .background(configuration.colorScheme.backgroundColor)
         }
 
     }
@@ -54,9 +54,9 @@ private extension StarField {
 
         var body: some View {
             ZStack {
-                FurnitureView(graphics: $layout.furnitureGraphics)
                 ObjectsView(graphics: $layout.objectGraphics)
-                NamesView(layout: layout, graphics: $layout.nameGraphics)
+                FurnitureView(graphics: $layout.furnitureGraphics)
+                NamesView(layout: layout)
             }
         }
 

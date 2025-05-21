@@ -9,7 +9,7 @@ extension StarField {
         case starInscribedCircle(center: CGPoint, radius: CGFloat)
         case starWingLine(start: CGPoint, finish: CGPoint)
         case resolvedText(
-            midpoint: CGPoint,
+            rect: CGRect,
             text: GraphicsContext.ResolvedText)
 
     }

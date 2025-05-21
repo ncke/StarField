@@ -6,7 +6,7 @@ extension StarField.Layout {
 
     func plotCoordinateLines() -> [StarField.Graphic] {
         let shading = GraphicsContext.Shading.color(
-            configuration.colorScheme.colorForCoordinateLines
+            configuration.colorScheme.coordinateLinesColor
         )
 
         let latLines = configuration.showLinesOfLatitude

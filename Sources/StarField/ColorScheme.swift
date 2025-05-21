@@ -5,9 +5,10 @@ import SwiftUI
 public extension StarField {
 
     public protocol ColorScheme {
-        var colorForCoordinateLines: Color { get }
-        var colorForStars: Color { get }
-        var fieldBackground: Color { get }
+        var backgroundColor: Color { get }
+        var coordinateLinesColor: Color { get }
+        var nameColor: Color { get }
+        var starColor: Color { get }
     }
 
 }
@@ -17,9 +18,10 @@ public extension StarField {
 public extension StarField {
 
     public struct StandardColorScheme: ColorScheme {
-        public let colorForCoordinateLines = Color.rgb(128, 128, 128)
-        public let colorForStars = Color.rgb(0, 0, 0)
-        public let fieldBackground: Color = Color.rgb(224, 255, 255)
+        public let backgroundColor: Color = Color.rgb(224, 255, 255)
+        public let coordinateLinesColor = Color.rgb(128, 128, 128)
+        public let nameColor = Color.rgb(32, 32, 32)
+        public let starColor = Color.rgb(0, 0, 0)
 
         public init() {}
     }

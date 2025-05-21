@@ -3,9 +3,7 @@ import SwiftUI
 
 // MARK: - Layout
 
-protocol TextResolver: AnyObject {
-    func resolve(_ text: Text) -> GraphicsContext.ResolvedText
-}
+typealias TextResolver = (String) -> GraphicsContext.ResolvedText?
 
 extension StarField {
 
@@ -17,17 +15,16 @@ extension StarField {
         let viewSize: CGSize
         let projector: Projector
         let minuteScale: CGFloat
-        weak var textResolver: TextResolver?
         private(set) var objectPlots = [UUID: CGPoint]()
         private var cancellables = Set<AnyCancellable>()
-        private var obscuringGraphics = [Graphic]()
-        private var furnitureDone = PassthroughSubject<Void, Never>()
-        private var objectsDone = PassthroughSubject<Void, Never>()
-        private var resolverReady = CurrentValueSubject<Bool, Never>(false)
+        private var obscuringGraphics = [UUID: [Graphic]]()
+        private var furnitureDone = CurrentValueSubject<Bool, Never>(false)
+        private var objectsDone = CurrentValueSubject<Bool, Never>(false)
 
         @Published var furnitureGraphics = [Graphic]()
         @Published var objectGraphics = [Graphic]()
-        @Published var nameGraphics = [Graphic]()
+        var nameGraphics = [Graphic]()
+        @Published var isReadyForNames = false
 
         init(
             objects: [Object],
@@ -50,11 +47,6 @@ extension StarField {
                 projector: projector)
         }
 
-        func setTextResolver(_ resolver: TextResolver) {
-            self.textResolver = resolver
-            resolverReady.send(true)
-        }
-
     }
 }
 
@@ -69,53 +61,58 @@ extension StarField.Layout {
         furnitureGraphics = []
         objectGraphics = []
         nameGraphics = []
-        obscuringGraphics = []
+        obscuringGraphics = [:]
 
         plotCoordinateLines()
             .publisher
-            .handleEvents(receiveCompletion: {
-                [weak self] _ in self?.furnitureDone.send()
-            })
-            .sink {
-                [weak self] graphic in
-
-                self?.furnitureGraphics.append(graphic)
-                self?.obscuringGraphics.append(graphic)
-            }
-            .store(in: &cancellables)
-
-        objects
-            .publisher
-            .flatMap { object in self.plotObject(object).publisher }
-            .handleEvents(receiveCompletion: {
-                [weak self] _ in self?.objectsDone.send()
-            })
-            .sink {
-                [weak self] graphic in
-
-                self?.objectGraphics.append(graphic)
-                self?.obscuringGraphics.append(graphic)
-            }
-            .store(in: &cancellables)
-
-        furnitureDone
-            .combineLatest(objectsDone, resolverReady)
-            .filter { _, _, isReady in isReady }
-            .prefix(1)
-            .flatMap { [weak self] (_, _, _) in
-                guard let self = self else {
-                    return Empty<[StarField.Graphic], Never>()
-                        .eraseToAnyPublisher()
+            .sink(
+                receiveCompletion: {
+                    [weak self] _ in
+                    self?.furnitureDone.send(true)
+                    self?.checkNameReadiness()
+                },
+                receiveValue: {
+                    [weak self] graphic in
+                    self?.furnitureGraphics.append(graphic)
+                    self?.obscuringGraphics[UUID()] = [graphic]
                 }
-
-                let avoiding = self.obscuringGraphics
-                return Just(self.plotNames(avoiding: avoiding))
-                    .eraseToAnyPublisher()
-            }
-            .sink { [weak self] nameGraphics in
-                self?.nameGraphics = nameGraphics
-            }
+            )
             .store(in: &cancellables)
+
+        objects.sorted(by: { s1, s2 in
+            s1.magnitude < s2.magnitude
+        })
+            .publisher
+            .flatMap {
+                [weak self] object in
+                let graphics = self?.plotObject(object)
+                self?.obscuringGraphics[object.id] = graphics
+                return graphics.publisher
+            }
+            .sink(
+                receiveCompletion: {
+                    [weak self] _ in
+                    self?.objectsDone.send(true)
+                    self?.checkNameReadiness()
+                },
+                receiveValue: { [weak self] graphic in
+                    self?.objectGraphics.append(contentsOf: graphic)
+                }
+            )		
+            .store(in: &cancellables)
+    }
+
+    func checkNameReadiness() {
+        if furnitureDone.value && objectsDone.value {
+            print("check -- is ready")
+            isReadyForNames = true
+        } else {
+            print("check -- not ready")
+        }
+    }
+
+    func layoutNames(using textResolver: TextResolver) -> [StarField.Graphic] {
+        return plotNames(avoiding: obscuringGraphics, using: textResolver)
     }
 
 }

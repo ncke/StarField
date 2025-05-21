@@ -10,19 +10,22 @@ public extension StarField {
         public var showLinesOfLongitude: CoordinateLines
         public var showStarAura: Bool
         public var colorScheme: ColorScheme
+        public var nameFont: Font
 
         public init(
             projection: Projection = .gnomonic,
             showLinesOfLatitude: CoordinateLines = .standard,
             showLinesOfLongitude: CoordinateLines = .standard,
             showStarAura: Bool = true,
-            colorScheme: StarField.ColorScheme = StandardColorScheme()
+            colorScheme: StarField.ColorScheme = StandardColorScheme(),
+            nameFont: Font = Font.system(size: 12.0)
         ) {
             self.projection = projection
             self.showLinesOfLatitude = showLinesOfLatitude
             self.showLinesOfLongitude = showLinesOfLongitude
             self.showStarAura = showStarAura
             self.colorScheme = colorScheme
+            self.nameFont = nameFont
         }
     }
 
