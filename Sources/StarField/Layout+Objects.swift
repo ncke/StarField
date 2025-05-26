@@ -33,6 +33,17 @@ private extension StarField.Layout {
         var graphics = [StarField.Graphic]()
         let radius = radiusForMagnitude(star.magnitude, projector: projector)
 
+        if isDouble {
+            let wingLength = wingLength(radius: radius)
+            let left1 = CGPoint(x: plot.x - radius, y: plot.y)
+            let left2 = CGPoint(x: left1.x - wingLength, y: plot.y)
+            let right1 = CGPoint(x: plot.x + radius, y: plot.y)
+            let right2 = CGPoint(x: right1.x + wingLength, y: plot.y)
+
+            graphics.append(.starWingLine(start: left1, finish: left2))
+            graphics.append(.starWingLine(start: right1, finish: right2))
+        }
+
         if isVariable {
             let graphic = StarField.Graphic.starInscribedCircle(
                 center: plot,
@@ -45,17 +56,6 @@ private extension StarField.Layout {
             graphics.append(graphic)
         }
 
-        if isDouble {
-            let wingLength = wingLength(radius: radius)
-            let left1 = CGPoint(x: plot.x - radius, y: plot.y)
-            let left2 = CGPoint(x: left1.x - wingLength, y: plot.y)
-            let right1 = CGPoint(x: plot.x + radius, y: plot.y)
-            let right2 = CGPoint(x: right1.x + wingLength, y: plot.y)
-
-            graphics.append(.starWingLine(start: left1, finish: left2))
-            graphics.append(.starWingLine(start: right1, finish: right2))
-        }
-
         return graphics
     }
 
@@ -63,7 +63,7 @@ private extension StarField.Layout {
         _ magnitude: Double,
         projector: StarField.Projector
     ) -> CGFloat {
-        let sized = max(1.0, 10.0 - magnitude) * 10.0 * minuteScale
+        let sized = max(1.0, 10.0 - magnitude) * 1.0 * minuteScale
         return (0.5 * sized).rounded(.up)
     }
 

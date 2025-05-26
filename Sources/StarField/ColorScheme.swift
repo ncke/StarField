@@ -18,7 +18,7 @@ public extension StarField {
 public extension StarField {
 
     public struct StandardColorScheme: ColorScheme {
-        public let backgroundColor: Color = Color.rgb(224, 255, 255)
+        public let backgroundColor: Color = Color.rgb(240, 255, 255)
         public let coordinateLinesColor = Color.rgb(128, 128, 128)
         public let nameColor = Color.rgb(32, 32, 32)
         public let starColor = Color.rgb(0, 0, 0)

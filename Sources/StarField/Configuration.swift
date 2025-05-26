@@ -18,7 +18,7 @@ public extension StarField {
             showLinesOfLongitude: CoordinateLines = .standard,
             showStarAura: Bool = true,
             colorScheme: StarField.ColorScheme = StandardColorScheme(),
-            nameFont: Font = Font.system(size: 12.0)
+            nameFont: Font = Font.system(size: 10.0)
         ) {
             self.projection = projection
             self.showLinesOfLatitude = showLinesOfLatitude

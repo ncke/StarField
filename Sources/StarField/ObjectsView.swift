@@ -38,16 +38,30 @@ extension StarField {
                     switch graphic {
 
                     case .starWingLine(let start, let finish):
-                        var path = Path()
-                        path.move(to: start)
-                        path.addLine(to: finish)
-                        context.stroke(path, with: ss)
+                        fillWingLine(
+                            start: start,
+                            finish: finish,
+                            context: context)
 
                     default:
                         break
                     }
                 }
             }
+        }
+
+        func fillWingLine(
+            start: CGPoint,
+            finish: CGPoint,
+            context: GraphicsContext
+        ) {
+            let cs = configuration.colorScheme
+            let ss = GraphicsContext.Shading.color(cs.starColor)
+
+            var wingPath = Path()
+            wingPath.move(to: start)
+            wingPath.addLine(to: finish)
+            context.stroke(wingPath, with: ss)
         }
 
         func fillStarForRadius(
@@ -61,7 +75,7 @@ extension StarField {
 
             if configuration.showStarAura {
                 let au = GraphicsContext.Shading.color(cs.backgroundColor)
-                let aura: CGFloat = 2.0
+                let aura: CGFloat = 1.0
                 let auraDiameter = 2 * (radius + aura)
                 let auraEllipse = CGRect(
                     x: center.x - radius - aura,

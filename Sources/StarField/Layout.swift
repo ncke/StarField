@@ -15,6 +15,7 @@ extension StarField {
         let viewSize: CGSize
         let projector: Projector
         let minuteScale: CGFloat
+        private var visibleObjects = [Object]()
         private(set) var objectPlots = [UUID: CGPoint]()
         private var cancellables = Set<AnyCancellable>()
         private var obscuringGraphics = [UUID: [Graphic]]()
@@ -62,6 +63,7 @@ extension StarField.Layout {
         objectGraphics = []
         nameGraphics = []
         obscuringGraphics = [:]
+        visibleObjects = []
 
         plotCoordinateLines()
             .publisher
@@ -86,7 +88,11 @@ extension StarField.Layout {
             .flatMap {
                 [weak self] object in
                 let graphics = self?.plotObject(object)
-                self?.obscuringGraphics[object.id] = graphics
+                if let graphics = graphics, !graphics.isEmpty {
+                    self?.obscuringGraphics[object.id] = graphics
+                    self?.visibleObjects.append(object)
+                }
+                //print("graphics: ", graphics?.count)
                 return graphics.publisher
             }
             .sink(
@@ -96,7 +102,9 @@ extension StarField.Layout {
                     self?.checkNameReadiness()
                 },
                 receiveValue: { [weak self] graphic in
-                    self?.objectGraphics.append(contentsOf: graphic)
+                    if !graphic.isEmpty {
+                        self?.objectGraphics.append(contentsOf: graphic)
+                    }
                 }
             )		
             .store(in: &cancellables)
@@ -112,7 +120,7 @@ extension StarField.Layout {
     }
 
     func layoutNames(using textResolver: TextResolver) -> [StarField.Graphic] {
-        return plotNames(avoiding: obscuringGraphics, using: textResolver)
+        return plotNames(for: visibleObjects, avoiding: obscuringGraphics, using: textResolver)
     }
 
 }
