@@ -36,7 +36,7 @@ extension StarField {
             self.viewSize = viewSize
             self.xMid = 0.5 * viewSize.width
             self.yMid = 0.5 * viewSize.height
-            self.k = yMid / viewDiameter.radians
+            self.k = min(xMid, yMid) / viewDiameter.radians
             self.a0 = viewCenter.0.radians
             self.d0 = viewCenter.1.radians
             self.flip = -1 // Flip to match charting convention.

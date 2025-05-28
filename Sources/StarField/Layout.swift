@@ -92,7 +92,6 @@ extension StarField.Layout {
                     self?.obscuringGraphics[object.id] = graphics
                     self?.visibleObjects.append(object)
                 }
-                //print("graphics: ", graphics?.count)
                 return graphics.publisher
             }
             .sink(
@@ -121,6 +120,38 @@ extension StarField.Layout {
 
     func layoutNames(using textResolver: TextResolver) -> [StarField.Graphic] {
         return plotNames(for: visibleObjects, avoiding: obscuringGraphics, using: textResolver)
+    }
+
+}
+
+// MARK: - Coordinate Lines
+
+extension StarField.Layout {
+
+    func plotCoordinateLines() -> [StarField.Graphic] {
+        let latGraphics = configuration
+            .showLinesOfLatitude
+            .enumerateForLatitude()
+            .flatMap { angle in
+                StarField.GreatCircle(
+                    angle: angle,
+                    sense: .latitude,
+                    projector: projector)
+                .plotGraphics()
+        }
+
+        let lonGraphics = configuration
+            .showLinesOfLongitude
+            .enumerateForLongitude()
+            .flatMap { angle in
+                StarField.GreatCircle(
+                    angle: angle,
+                    sense: .longitude,
+                    projector: projector)
+                .plotGraphics()
+        }
+
+        return latGraphics + lonGraphics
     }
 
 }

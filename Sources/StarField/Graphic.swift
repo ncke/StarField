@@ -1,5 +1,13 @@
 import SwiftUI
 
+// MARK: - Plottable
+
+protocol Plottable {
+    func plotGraphics() -> [StarField.Graphic]
+}
+
+// MARK: - Graphic
+
 extension StarField {
 
     enum Graphic {
