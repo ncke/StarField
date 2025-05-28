@@ -1,39 +1,58 @@
 import SwiftUI
 
-// MARK: - Plot Objects
+// MARK: - Star
 
-extension StarField.Layout {
+extension StarField {
 
-    func plotObject(_ object: StarField.Object) -> [StarField.Graphic] {
-        switch object.type {
-            
-        case .star(let isDouble, let isVariable):
-            return plotStar(object, isDouble: isDouble, isVariable: isVariable)
+    public struct Star: StarFieldObject, StarFieldNameable {
+        public let id: UUID
+        public let position: Position
+        public let magnitude: Double
+        public let isVariable: Bool
+        public let isMultiple: Bool
+        public let names: [String]
+
+        public init(
+            id: UUID,
+            position: Position,
+            magnitude: Double,
+            isVariable: Bool,
+            isMultiple: Bool,
+            names: [String]
+        ) {
+            self.id = id
+            self.position = position
+            self.magnitude = magnitude
+            self.isVariable = isVariable
+            self.isMultiple = isMultiple
+            self.names = names
         }
     }
 
 }
 
-// MARK: - Plot Star
+// MARK: - PlottableObject
 
-private extension StarField.Layout {
+extension StarField.Star: PlottableObject {}
 
-    func plotStar(
-        _ star: StarField.Object,
-        isDouble: Bool,
-        isVariable: Bool
+// MARK: - Plottable
+
+extension StarField.Star: Plottable {
+
+    func plotGraphics(
+        using projector: any StarField.Projector
     ) -> [StarField.Graphic] {
         guard
-            let plot = projector.plot(star.position),
+            let plot = projector.plot(position),
             projector.isPlotNearView(plot)
         else {
             return []
         }
 
         var graphics = [StarField.Graphic]()
-        let radius = radiusForMagnitude(star.magnitude, projector: projector)
+        let radius = radiusForMagnitude(magnitude, projector: projector)
 
-        if isDouble {
+        if isMultiple {
             let wingLength = wingLength(radius: radius)
             let left1 = CGPoint(x: plot.x - radius, y: plot.y)
             let left2 = CGPoint(x: left1.x - wingLength, y: plot.y)
@@ -63,12 +82,11 @@ private extension StarField.Layout {
         _ magnitude: Double,
         projector: StarField.Projector
     ) -> CGFloat {
-        let sized = max(1.0, 10.0 - magnitude) * 1.0 * minuteScale
+        let sized = max(1.0, 10.0 - magnitude) * 1.0// * minuteScale
         return (0.5 * sized).rounded(.up)
     }
 
     func wingLength(radius: CGFloat) -> CGFloat {
         return max(0.7 * radius, 1.0)
     }
-
 }

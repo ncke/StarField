@@ -3,7 +3,11 @@ import SwiftUI
 // MARK: - Plottable
 
 protocol Plottable {
-    func plotGraphics() -> [StarField.Graphic]
+
+    func plotGraphics(
+        using projector: StarField.Projector
+    ) -> [StarField.Graphic]
+    
 }
 
 // MARK: - Graphic
@@ -11,7 +15,6 @@ protocol Plottable {
 extension StarField {
 
     enum Graphic {
-
         case coordinateLine(start: CGPoint, finish: CGPoint)
         case starCircle(center: CGPoint, radius: CGFloat)
         case starInscribedCircle(center: CGPoint, radius: CGFloat)

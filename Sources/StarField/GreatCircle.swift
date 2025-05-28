@@ -16,14 +16,12 @@ extension StarField {
 
         let angle: Angle
         let sense: Sense
-        let projector: StarField.Projector
         private let wrap: [Angle]
         private let positioner: Positioner
 
-        init(angle: Angle, sense: Sense, projector: StarField.Projector) {
+        init(angle: Angle, sense: Sense) {
             self.angle = angle
             self.sense = sense
-            self.projector = projector
             self.wrap = sense.wrappingAngles
             self.positioner = sense.positioner
         }
@@ -36,9 +34,15 @@ extension StarField {
 
 extension StarField.GreatCircle: Plottable {
 
-    func plotGraphics() -> [StarField.Graphic] { plotCircle() }
+    func plotGraphics(
+        using projector: StarField.Projector
+    ) -> [StarField.Graphic] {
+        plotCircle(using: projector)
+    }
 
-    private func plotCircle() -> [StarField.Graphic] {
+    private func plotCircle(
+        using projector: StarField.Projector
+    ) -> [StarField.Graphic] {
         // Plot all points on the great circle for this angle, some may
         // be nil if not visible in a specific star field.
         var points = wrap.map { wrappingAngle in

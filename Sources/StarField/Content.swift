@@ -7,19 +7,19 @@ public extension StarField {
     public struct Content: SwiftUI.View {
         public var viewCenter: (Angle, Angle)
         public var diameter: Angle
-        public var objects: [Object]
+        var objects: [any PlottableObject]
         public var configuration: Configuration
         public var size: CGSize? = nil
 
         public init(
             viewCenter: (Angle, Angle),
             diameter: Angle,
-            objects: [Object],
+            objects: [any StarFieldObject],
             configuration: Configuration = Configuration()
         ) {
             self.viewCenter = viewCenter
             self.diameter = diameter
-            self.objects = objects
+            self.objects = objects.compactMap { obj in obj as? PlottableObject }
             self.configuration = configuration
         }
 

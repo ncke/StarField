@@ -8,14 +8,14 @@ typealias TextResolver = (String) -> GraphicsContext.ResolvedText?
 extension StarField {
 
     class Layout: ObservableObject {
-        let objects: [Object]
+        let objects: [any PlottableObject]
         let configuration: Configuration
         let viewCenter: (Angle, Angle)
         let viewDiameter: Angle
         let viewSize: CGSize
         let projector: Projector
         let minuteScale: CGFloat
-        private var visibleObjects = [Object]()
+        private var visibleObjects = [any PlottableObject]()
         private(set) var objectPlots = [UUID: CGPoint]()
         private var cancellables = Set<AnyCancellable>()
         private var obscuringGraphics = [UUID: [Graphic]]()
@@ -28,7 +28,7 @@ extension StarField {
         @Published var isReadyForNames = false
 
         init(
-            objects: [Object],
+            objects: [any PlottableObject],
             configuration: Configuration,
             viewCenter: (Angle, Angle),
             viewDiameter: Angle,
@@ -65,7 +65,10 @@ extension StarField.Layout {
         obscuringGraphics = [:]
         visibleObjects = []
 
-        plotCoordinateLines()
+        let lats = configuration.showLinesOfLatitude.enumerateForLatitude()
+        let lons = configuration.showLinesOfLongitude.enumerateForLongitude()
+        StarField.CoordinateLines(latitudes: lats, longitudes: lons)
+            .plotGraphics(using: projector)
             .publisher
             .sink(
                 receiveCompletion: {
@@ -87,12 +90,7 @@ extension StarField.Layout {
             .publisher
             .flatMap {
                 [weak self] object in
-                let graphics = self?.plotObject(object)
-                if let graphics = graphics, !graphics.isEmpty {
-                    self?.obscuringGraphics[object.id] = graphics
-                    self?.visibleObjects.append(object)
-                }
-                return graphics.publisher
+                (self?.plotAndRecordObject(object)).publisher
             }
             .sink(
                 receiveCompletion: {
@@ -101,21 +99,25 @@ extension StarField.Layout {
                     self?.checkNameReadiness()
                 },
                 receiveValue: { [weak self] graphic in
-                    if !graphic.isEmpty {
-                        self?.objectGraphics.append(contentsOf: graphic)
-                    }
+                    self?.objectGraphics.append(contentsOf: graphic)
                 }
             )		
             .store(in: &cancellables)
     }
 
-    func checkNameReadiness() {
-        if furnitureDone.value && objectsDone.value {
-            print("check -- is ready")
-            isReadyForNames = true
-        } else {
-            print("check -- not ready")
+    func plotAndRecordObject(_ object: PlottableObject) -> [StarField.Graphic] {
+        let graphics = object.plotGraphics(using: projector)
+
+        if !graphics.isEmpty {
+            obscuringGraphics[object.id] = graphics
+            visibleObjects.append(object)
         }
+
+        return graphics
+    }
+
+    func checkNameReadiness() {
+        isReadyForNames = furnitureDone.value && objectsDone.value
     }
 
     func layoutNames(using textResolver: TextResolver) -> [StarField.Graphic] {
@@ -124,37 +126,7 @@ extension StarField.Layout {
 
 }
 
-// MARK: - Coordinate Lines
 
-extension StarField.Layout {
-
-    func plotCoordinateLines() -> [StarField.Graphic] {
-        let latGraphics = configuration
-            .showLinesOfLatitude
-            .enumerateForLatitude()
-            .flatMap { angle in
-                StarField.GreatCircle(
-                    angle: angle,
-                    sense: .latitude,
-                    projector: projector)
-                .plotGraphics()
-        }
-
-        let lonGraphics = configuration
-            .showLinesOfLongitude
-            .enumerateForLongitude()
-            .flatMap { angle in
-                StarField.GreatCircle(
-                    angle: angle,
-                    sense: .longitude,
-                    projector: projector)
-                .plotGraphics()
-        }
-
-        return latGraphics + lonGraphics
-    }
-
-}
 
 // MARK: - Minute Scale
 

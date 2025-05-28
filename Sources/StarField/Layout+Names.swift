@@ -1,11 +1,15 @@
 import SwiftUI
 
+public protocol StarFieldNameable {
+    var names: [String] { get }
+}
+
 // MARK: - Plot Names
 
 extension StarField.Layout {
 
     func plotNames(
-        for visibleObjects: [StarField.Object],
+        for visibleObjects: [any PlottableObject],
         avoiding: [UUID: [StarField.Graphic]],
         using textResolver: TextResolver
     ) -> [StarField.Graphic] {
@@ -13,7 +17,9 @@ extension StarField.Layout {
         return visibleObjects
             .sorted { s1, s2 in s1.magnitude < s2.magnitude }
             .flatMap { object in
-                object.names.compactMap { name in
+                let names = (object as? StarFieldNameable)?.names ?? []
+
+                let graphics: [StarField.Graphic] = names.compactMap { name in
                     guard
                         !name.isEmpty,
                         let graphics = avoiding[object.id],
@@ -35,6 +41,8 @@ extension StarField.Layout {
                     self.nameGraphics.append(nameGraphic)
                     return nameGraphic
                 }
+
+                return graphics
             }
 
     }
@@ -42,7 +50,7 @@ extension StarField.Layout {
     private func positionText(
         _ resolvedText: GraphicsContext.ResolvedText,
         name: String,
-        forObject object: StarField.Object,
+        forObject object: any PlottableObject,
         withGraphics objectGraphics: [StarField.Graphic],
         obscurements: [StarField.Graphic]
     ) -> CGRect? {
@@ -262,11 +270,10 @@ extension StarField.Layout {
     }
 
     private func slotParameters(
-        object: StarField.Object,
+        object: any PlottableObject,
         objectGraphics: [StarField.Graphic]
     ) -> (CGPoint, CGFloat)? {
-        switch object.type {
-        case .star:
+        if object is StarField.Star {
             for graphic in objectGraphics {
                 if case .starCircle(let center, let radius) = graphic {
                     return (center, radius + Self.slotDistance)
@@ -276,9 +283,10 @@ extension StarField.Layout {
                 }
             }
             return nil
-        default:
-            return nil
         }
+
+
+        return nil
     }
 
     private func stableShuffledAngles(for name: String) -> [Int] {
