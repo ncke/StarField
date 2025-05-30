@@ -8,7 +8,7 @@ typealias TextResolver = (String) -> GraphicsContext.ResolvedText?
 extension StarField {
 
     class Layout: ObservableObject {
-        let objects: [any PlottableObject]
+        let objects: [any StarFieldObject]
         let configuration: Configuration
         let viewCenter: (Angle, Angle)
         let viewDiameter: Angle
@@ -29,7 +29,8 @@ extension StarField {
         @Published var isReadyForNames = false
 
         init(
-            objects: [any PlottableObject],
+            objects: [any StarFieldObject],
+            obscurementsRegistry: ObscurementsRegistry,
             configuration: Configuration,
             viewCenter: (Angle, Angle),
             viewDiameter: Angle,
@@ -58,15 +59,25 @@ extension StarField {
 extension StarField.Layout {
 
     func build() {
+        clearExistingBuiltProducts()
+        buildCoordinateLines()
+        buildObjectPlots()
+    }
+
+    func clearExistingBuiltProducts() {
         cancellables.forEach { c in c.cancel() }
         cancellables.removeAll()
+
+        // await obscurementsRegistry.clearAllObscurements()
 
         furnitureGraphics = []
         objectGraphics = []
         nameGraphics = []
         obscuringGraphics = [:]
         visibleObjects = []
+    }
 
+    func buildCoordinateLines() {
         let lats = configuration.showLinesOfLatitude.enumerateForLatitude()
         let lons = configuration.showLinesOfLongitude.enumerateForLongitude()
         StarField.CoordinateLines(latitudes: lats, longitudes: lons)
@@ -85,10 +96,16 @@ extension StarField.Layout {
                 }
             )
             .store(in: &cancellables)
+    }
 
-        objects.sorted(by: { s1, s2 in
-            s1.magnitude < s2.magnitude
-        })
+    func buildObjectPlots() {
+        objects
+            .compactMap {
+                obj in obj as? (any PlottableObject)
+            }
+            .sorted { s1, s2 in
+                s1.magnitude < s2.magnitude
+            }
             .publisher
             .flatMap {
                 [weak self] object in
@@ -103,11 +120,13 @@ extension StarField.Layout {
                 receiveValue: { [weak self] graphic in
                     self?.objectGraphics.append(contentsOf: graphic)
                 }
-            )		
+            )
             .store(in: &cancellables)
     }
 
-    func plotAndRecordObject(_ object: PlottableObject) -> [StarField.Graphic] {
+    func plotAndRecordObject(
+        _ object: any PlottableObject
+    ) -> [StarField.Graphic] {
         let graphics = object.plotGraphics(using: projector)
 
         if !graphics.isEmpty {
@@ -123,12 +142,13 @@ extension StarField.Layout {
     }
 
     func layoutNames(using textResolver: TextResolver) -> [StarField.Graphic] {
-        return plotNames(for: visibleObjects, avoiding: obscuringGraphics, using: textResolver)
+        plotNames(
+            for: visibleObjects,
+            avoiding: obscuringGraphics,
+            using: textResolver)
     }
 
 }
-
-
 
 // MARK: - Minute Scale
 

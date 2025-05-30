@@ -17,12 +17,9 @@ extension StarField {
     enum Graphic {
         case coordinateLine(start: CGPoint, finish: CGPoint)
         case starCircle(center: CGPoint, radius: CGFloat, isInscribed: Bool, hasWings: Bool)
-//        case starInscribedCircle(center: CGPoint, radius: CGFloat)
-//        case starWingLine(start: CGPoint, finish: CGPoint)
         case resolvedText(
             rect: CGRect,
             text: GraphicsContext.ResolvedText)
-
     }
 
 }

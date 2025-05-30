@@ -7,7 +7,7 @@ public extension StarField {
     public struct Content: SwiftUI.View {
         public var viewCenter: (Angle, Angle)
         public var diameter: Angle
-        var objects: [any PlottableObject]
+        public var objects: [any StarFieldObject]
         public var configuration: Configuration
         public var size: CGSize? = nil
 
@@ -19,15 +19,17 @@ public extension StarField {
         ) {
             self.viewCenter = viewCenter
             self.diameter = diameter
-            self.objects = objects.compactMap { obj in obj as? PlottableObject }
+            self.objects = objects
             self.configuration = configuration
         }
 
         public var body: some View {
             GeometryReader { geometry in
                 let viewSize = size ?? geometry.size
+                let obscurementsRegistry = ObscurementsRegistry()
                 let layout = Layout(
                     objects: objects,
+                    obscurementsRegistry: obscurementsRegistry,
                     configuration: configuration,
                     viewCenter: viewCenter,
                     viewDiameter: diameter,

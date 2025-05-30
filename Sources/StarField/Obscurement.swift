@@ -14,7 +14,7 @@ extension StarField {
         }
 
         private class Obscurement {
-            var shapes: [Shape]
+            private(set) var shapes: [Shape]
 
             init(shapes: [Shape]) {
                 self.shapes = shapes
@@ -27,7 +27,7 @@ extension StarField {
 
         func registerShapes(
             _ shapes: [Shape],
-            identifier: UUID,
+            identifier: UUID
         ) {
             if var existing = obscurements[identifier] {
                 existing.addShapes(shapes)
