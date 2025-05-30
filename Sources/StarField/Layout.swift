@@ -15,6 +15,7 @@ extension StarField {
         let viewSize: CGSize
         let projector: Projector
         let minuteScale: CGFloat
+        let obscurementsRegistry: ObscurementsRegistry
         private var visibleObjects = [any PlottableObject]()
         private(set) var objectPlots = [UUID: CGPoint]()
         private var cancellables = Set<AnyCancellable>()
@@ -43,6 +44,7 @@ extension StarField {
                 viewCenter: viewCenter,
                 viewDiameter: viewDiameter,
                 viewSize: viewSize)
+            self.obscurementsRegistry = ObscurementsRegistry()
             self.minuteScale = Self.computeMinuteLength(
                 viewCenter: viewCenter,
                 projector: projector)

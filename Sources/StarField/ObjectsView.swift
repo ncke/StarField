@@ -16,35 +16,8 @@ extension StarField {
             Canvas { context, _ in
                 graphics.forEach { graphic in
                     switch graphic {
-
-                    case .starCircle(let center, let radius):
-                        fillStarForRadius(
-                            radius,
-                            center: center,
-                            context: context)
-
-                    case .starInscribedCircle(let center, let radius):
-                        fillInscribedStarForRadius(
-                            radius,
-                            center: center,
-                            context: context)
-
-                    default:
-                        break
-                    }
-                }
-
-                graphics.forEach { graphic in
-                    switch graphic {
-
-                    case .starWingLine(let start, let finish):
-                        fillWingLine(
-                            start: start,
-                            finish: finish,
-                            context: context)
-
-                    default:
-                        break
+                    case .starCircle: drawStarGraphic(graphic, context: context)
+                    default: break
                     }
                 }
             }
@@ -64,61 +37,88 @@ extension StarField {
             context.stroke(wingPath, with: ss)
         }
 
-        func fillStarForRadius(
-            _ radius: CGFloat,
-            center: CGPoint,
+        func drawStarGraphic(
+            _ graphic: StarField.Graphic,
             context: GraphicsContext
         ) {
-            let cs = configuration.colorScheme
-            let ss = GraphicsContext.Shading.color(cs.starColor)
-            let diameter = 2 * radius
-
-            if configuration.showStarAura {
-                let au = GraphicsContext.Shading.color(cs.backgroundColor)
-                let aura: CGFloat = 1.0
-                let auraDiameter = 2 * (radius + aura)
-                let auraEllipse = CGRect(
-                    x: center.x - radius - aura,
-                    y: center.y - radius - aura,
-                    width: auraDiameter,
-                    height: auraDiameter)
-
-                let path = Path(ellipseIn: auraEllipse)
-                context.fill(path, with: au)
+            guard
+                case .starCircle(
+                    center: let center,
+                    radius: let radius,
+                    isInscribed: let isInscribed,
+                    hasWings: let hasWings
+                ) = graphic
+            else {
+                return
             }
 
-            let starEllipse = CGRect(
-                origin: CGPoint(x: center.x - radius, y: center.y - radius),
-                size: CGSize(width: diameter, height: diameter))
+            let cs = configuration.colorScheme
+            let ss = GraphicsContext.Shading.color(cs.starColor)
+            let bg = GraphicsContext.Shading.color(cs.backgroundColor)
 
-            let path = Path(ellipseIn: starEllipse)
-            context.fill(path, with: ss)
+            let starRect = rectWithCenter(center, radius: radius)
+
+            var wingRects = [CGRect]()
+            if hasWings {
+                let wingLength = max(radius * 0.7, 1.0)
+                let right = rectForWingOnRect(starRect, length: wingLength, height: 1.0)
+                let left = rectForWingOnRect(starRect, length: -wingLength, height: 1.0)
+                wingRects = [left, right]
+            }
+
+            if configuration.showStarAura {
+                let aura: CGFloat = 1.0
+                let auraRect = enlargeRect(starRect, delta: aura)
+                let path = Path(ellipseIn: auraRect)
+                context.fill(path, with: bg)
+
+                wingRects.forEach { wingRect in
+                    let wingAuraRect = enlargeRect(wingRect, delta: aura)
+                    let path = Path(wingAuraRect)
+                    context.fill(path, with: bg)
+                }
+            }
+
+            var starPath = Path(ellipseIn: starRect)
+            wingRects.forEach { wingRect in starPath.addRect(wingRect) }
+            context.fill(starPath, with: ss)
+
+            if isInscribed {
+                let (width, halfWidth) = (CGFloat(1.0), CGFloat(0.5))
+                let scribedRadius = max(radius - width - halfWidth, 1.0)
+                let scribedRect = rectWithCenter(center, radius: scribedRadius)
+                let scribedPath = Path(ellipseIn: scribedRect)
+                context.stroke(scribedPath, with: bg, lineWidth: width)
+            }
         }
 
-        func fillInscribedStarForRadius(
-            _ radius: CGFloat,
-            center: CGPoint,
-            context: GraphicsContext
-        ) {
-            let cs = configuration.colorScheme
-            let bg = GraphicsContext.Shading.color(cs.backgroundColor)
-            fillStarForRadius(radius, center: center, context: context)
+        func rectWithCenter(_ center: CGPoint, radius: CGFloat) -> CGRect {
+            CGRect(
+                x: center.x.rounded() - radius,
+                y: center.y.rounded() - radius,
+                width: 2.0 * radius,
+                height: 2.0 * radius)
+        }
 
-            let shellHalfWidth = max((0.1 * radius).rounded(.down), 0.5)
-            let shellLineWidth = 2 * shellHalfWidth
-            let shellRadius = max(radius - shellLineWidth - shellHalfWidth, 0)
-            let shellDiameter = 2 * shellRadius
+        func enlargeRect(_ rect: CGRect, delta: CGFloat) -> CGRect {
+            CGRect(
+                x: Int(rect.minX - delta),
+                y: Int(rect.minY - delta),
+                width: Int(rect.width + 2.0 * delta),
+                height: Int(rect.height + 2.0 * delta))
+        }
 
-            let shellEllipse = CGRect(
-                x: center.x - shellRadius,
-                y: center.y - shellRadius,
-                width: shellDiameter,
-                height: shellDiameter)
-
-            context.stroke(
-                Path(ellipseIn: shellEllipse),
-                with: bg,
-                lineWidth: shellLineWidth)
+        func rectForWingOnRect(
+            _ rect: CGRect,
+            length: CGFloat,
+            height: CGFloat
+        ) -> CGRect {
+            let root = length > 0 ? rect.maxX : rect.minX
+            return CGRect(
+                x: Int(root),
+                y: Int(rect.midY),
+                width: Int(length),
+                height: Int(height))
         }
 
     }

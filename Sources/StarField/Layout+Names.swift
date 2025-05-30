@@ -119,28 +119,10 @@ extension StarField.Layout {
             case .resolvedText(let rect, let text):
                 if rect.intersects(nameRect) { return true }
 
-            case .starCircle(let center, let radius):
+            case .starCircle(let center, let radius, _, _):
                 if circleIntersectsRect(
                     center: center,
                     radius: radius,
-                    rect: nameRect
-                ) {
-                    return true
-                }
-
-            case .starInscribedCircle(let center, let radius):
-                if circleIntersectsRect(
-                    center: center,
-                    radius: radius,
-                    rect: nameRect
-                ) {
-                    return true
-                }
-
-            case .starWingLine(let start, let finish):
-                if lineIntersectsRect(
-                    start: start,
-                    finish: finish,
                     rect: nameRect
                 ) {
                     return true
@@ -275,10 +257,7 @@ extension StarField.Layout {
     ) -> (CGPoint, CGFloat)? {
         if object is StarField.Star {
             for graphic in objectGraphics {
-                if case .starCircle(let center, let radius) = graphic {
-                    return (center, radius + Self.slotDistance)
-                }
-                if case .starInscribedCircle(let center, let radius) = graphic {
+                if case .starCircle(let center, let radius, _, _) = graphic {
                     return (center, radius + Self.slotDistance)
                 }
             }
