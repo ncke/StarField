@@ -15,17 +15,17 @@ extension StarField {
         let viewSize: CGSize
         let projector: Projector
         let minuteScale: CGFloat
-        private var visibleObjects = [any PlottableObject]()
-        private(set) var objectPlots = [UUID: CGPoint]()
+        //private var visibleObjects = [any PlottableObject]()
+        //private(set) var objectPlots = [UUID: CGPoint]()
         private var cancellables = Set<AnyCancellable>()
         // TODO: We only need a single [UUID: Graphic] now.
-        private var obscuringGraphics = [UUID: [Graphic]]()
+        //private var obscuringGraphics = [UUID: [Graphic]]()
         private var furnitureDone = CurrentValueSubject<Bool, Never>(false)
         private var objectsDone = CurrentValueSubject<Bool, Never>(false)
 
         @Published var furnitureGraphics = [Graphic]()
         @Published var objectGraphics = [Graphic]()
-        var nameGraphics = [Graphic]()
+        //var nameGraphics = [Graphic]()
         @Published var isReadyForNames = false
 
         init(
@@ -69,9 +69,9 @@ extension StarField.Layout {
         // TODO: We no longer need this much state, simplify.
         furnitureGraphics = []
         objectGraphics = []
-        nameGraphics = []
-        obscuringGraphics = [:]
-        visibleObjects = []
+        //nameGraphics = []
+        //obscuringGraphics = [:]
+        //visibleObjects = []
     }
 
     func buildCoordinateLines() {
@@ -89,7 +89,7 @@ extension StarField.Layout {
                 receiveValue: {
                     [weak self] graphic in
                     self?.furnitureGraphics.append(graphic)
-                    self?.obscuringGraphics[UUID()] = [graphic]
+                    //self?.obscuringGraphics[UUID()] = [graphic]
                 }
             )
             .store(in: &cancellables)
@@ -129,8 +129,8 @@ extension StarField.Layout {
             configuration: configuration)
 
         if let g = graphics {
-            obscuringGraphics[object.id] = [g]
-            visibleObjects.append(object)
+            //obscuringGraphics[object.id] = [g]
+            //visibleObjects.append(object)
             return [g]
         }
 
@@ -141,11 +141,15 @@ extension StarField.Layout {
         isReadyForNames = furnitureDone.value && objectsDone.value
     }
 
-    func layoutNames(using textResolver: TextResolver) -> [StarField.Graphic] {
-        plotNames(
-            for: visibleObjects,
-            avoiding: obscuringGraphics,
-            using: textResolver)
+    func layoutNames(
+        using textResolver: TextResolver
+    ) -> [StarField.Graphic] {
+        let fitter = StarField.NamesFitter(
+            objects: objects,
+            graphics: furnitureGraphics + objectGraphics,
+            viewSize: viewSize)
+
+        return fitter.fit(textResolver: textResolver)
     }
 
 }

@@ -56,7 +56,7 @@ private extension StarField {
             ZStack {
                 GraphicsView(graphics: $layout.furnitureGraphics)
                 GraphicsView(graphics: $layout.objectGraphics)
-                NamesView(layout: layout)
+                if layout.isReadyForNames { NamesView(layout: layout) }
             }
         }
 

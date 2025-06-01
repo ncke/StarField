@@ -7,7 +7,6 @@ extension StarField {
         @ObservedObject var layout: Layout
 
         var body: some View {
-            if layout.isReadyForNames {
                 let nameFont = configuration.nameFont
                 let nameColor = configuration.colorScheme.nameColor
 
@@ -27,10 +26,7 @@ extension StarField {
                     let nameGraphics = layout.layoutNames(using: resolver)
                     nameGraphics.forEach { graphic in
                         namesArtist.drawGraphic(graphic)
-                    }
                 }
-            } else {
-                Text("")
             }
         }
 

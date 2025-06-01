@@ -89,3 +89,103 @@ extension StarField.Graphic {
     }
 
 }
+
+// MARK: - Overlap Detection
+
+extension StarField.Graphic.Shape {
+
+    func hasOverlapWithRect(_ rect: CGRect) -> Bool {
+        switch self {
+
+        case .rectangle(let shapeRect, _, _):
+            return rect.intersects(shapeRect)
+
+        case .line(let start, let finish, _, _):
+            return lineIntersectsRect(
+                start: start,
+                finish: finish,
+                rect: rect)
+
+        case .circle(let center, let radius, _, _):
+            return circleIntersectsRect(
+                center: center,
+                radius: radius,
+                rect: rect)
+
+        case .text(let shapeRect, _, _, _):
+            return rect.intersects(shapeRect)
+        }
+    }
+
+    private func lineIntersectsRect(
+        start: CGPoint,
+        finish: CGPoint,
+        rect: CGRect
+    ) -> Bool {
+        if start.x < rect.minX && finish.x < rect.minX { return false }
+        if start.x > rect.maxX && finish.x > rect.maxX { return false }
+        if start.y < rect.minY && finish.y < rect.minY { return false }
+        if start.y > rect.maxY && finish.y > rect.maxY { return false }
+
+        if rect.contains(start) || rect.contains(finish) {
+            return true
+        }
+
+        let rectEdges = [
+            (rect.origin, CGPoint(x: rect.maxX, y: rect.minY)),
+            (
+                CGPoint(x: rect.maxX, y: rect.minY),
+                CGPoint(x: rect.maxX, y: rect.maxY)
+            ),
+            (
+                CGPoint(x: rect.maxX, y: rect.maxY),
+                CGPoint(x: rect.minX, y: rect.maxY)
+            ),
+            (
+                CGPoint(x: rect.minX, y: rect.maxY),
+                CGPoint(x: rect.minX, y: rect.minY)
+            )
+        ]
+
+        for (edgeStart, edgeEnd) in rectEdges {
+            if lineSegmentsIntersect(
+                start1: start,
+                end1: finish,
+                start2: edgeStart,
+                end2: edgeEnd
+            ) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    private func lineSegmentsIntersect(
+        start1: CGPoint,
+        end1: CGPoint,
+        start2: CGPoint,
+        end2: CGPoint
+    ) -> Bool {
+        func ccw(_ a: CGPoint, _ b: CGPoint, _ c: CGPoint) -> Bool {
+            return (c.y - a.y) * (b.x - a.x) > (b.y - a.y) * (c.x - a.x)
+        }
+
+        return ccw(start1, start2, end2) != ccw(end1, start2, end2) &&
+               ccw(start1, end1, start2) != ccw(start1, end1, end2)
+    }
+
+    private func circleIntersectsRect(
+        center: CGPoint,
+        radius: CGFloat,
+        rect: CGRect
+    ) -> Bool {
+        let closestX = max(rect.minX, min(center.x, rect.maxX))
+        let closestY = max(rect.minY, min(center.y, rect.maxY))
+        let dx = center.x - closestX
+        let dy = center.y - closestY
+
+        return (dx * dx + dy * dy) <= (radius * radius)
+    }
+
+}
