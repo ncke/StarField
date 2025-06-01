@@ -26,10 +26,8 @@ public extension StarField {
         public var body: some View {
             GeometryReader { geometry in
                 let viewSize = size ?? geometry.size
-                let obscurementsRegistry = ObscurementsRegistry()
                 let layout = Layout(
                     objects: objects,
-                    obscurementsRegistry: obscurementsRegistry,
                     configuration: configuration,
                     viewCenter: viewCenter,
                     viewDiameter: diameter,
@@ -56,8 +54,8 @@ private extension StarField {
 
         var body: some View {
             ZStack {
-                FurnitureView(graphics: $layout.furnitureGraphics)
-                ObjectsView(graphics: $layout.objectGraphics)
+                GraphicsView(graphics: $layout.furnitureGraphics)
+                GraphicsView(graphics: $layout.objectGraphics)
                 NamesView(layout: layout)
             }
         }

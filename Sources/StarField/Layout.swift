@@ -15,10 +15,10 @@ extension StarField {
         let viewSize: CGSize
         let projector: Projector
         let minuteScale: CGFloat
-        let obscurementsRegistry: ObscurementsRegistry
         private var visibleObjects = [any PlottableObject]()
         private(set) var objectPlots = [UUID: CGPoint]()
         private var cancellables = Set<AnyCancellable>()
+        // TODO: We only need a single [UUID: Graphic] now.
         private var obscuringGraphics = [UUID: [Graphic]]()
         private var furnitureDone = CurrentValueSubject<Bool, Never>(false)
         private var objectsDone = CurrentValueSubject<Bool, Never>(false)
@@ -30,7 +30,6 @@ extension StarField {
 
         init(
             objects: [any StarFieldObject],
-            obscurementsRegistry: ObscurementsRegistry,
             configuration: Configuration,
             viewCenter: (Angle, Angle),
             viewDiameter: Angle,
@@ -45,7 +44,6 @@ extension StarField {
                 viewCenter: viewCenter,
                 viewDiameter: viewDiameter,
                 viewSize: viewSize)
-            self.obscurementsRegistry = ObscurementsRegistry()
             self.minuteScale = Self.computeMinuteLength(
                 viewCenter: viewCenter,
                 projector: projector)
@@ -68,8 +66,7 @@ extension StarField.Layout {
         cancellables.forEach { c in c.cancel() }
         cancellables.removeAll()
 
-        // await obscurementsRegistry.clearAllObscurements()
-
+        // TODO: We no longer need this much state, simplify.
         furnitureGraphics = []
         objectGraphics = []
         nameGraphics = []
@@ -81,7 +78,7 @@ extension StarField.Layout {
         let lats = configuration.showLinesOfLatitude.enumerateForLatitude()
         let lons = configuration.showLinesOfLongitude.enumerateForLongitude()
         StarField.CoordinateLines(latitudes: lats, longitudes: lons)
-            .plotGraphics(using: projector)
+            .plotGraphics(using: projector, configuration: configuration)
             .publisher
             .sink(
                 receiveCompletion: {
@@ -127,14 +124,17 @@ extension StarField.Layout {
     func plotAndRecordObject(
         _ object: any PlottableObject
     ) -> [StarField.Graphic] {
-        let graphics = object.plotGraphics(using: projector)
+        let graphics = object.plotGraphics(
+            using: projector,
+            configuration: configuration)
 
-        if !graphics.isEmpty {
-            obscuringGraphics[object.id] = graphics
+        if let g = graphics {
+            obscuringGraphics[object.id] = [g]
             visibleObjects.append(object)
+            return [g]
         }
 
-        return graphics
+        return []
     }
 
     func checkNameReadiness() {

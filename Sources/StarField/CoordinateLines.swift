@@ -21,24 +21,29 @@ extension StarField {
 extension StarField.CoordinateLines: Plottable {
 
     func plotGraphics(
-        using projector: StarField.Projector
-    ) -> [StarField.Graphic] {
-        let latGraphics = latitudes.flatMap { angle in
+        using projector: StarField.Projector,
+        configuration: StarField.Configuration
+    ) -> StarField.Graphic? {
+        let latShapes = latitudes.flatMap { angle in
             StarField.GreatCircle(
                 angle: angle,
                 sense: .latitude
             )
-            .plotGraphics(using: projector)
+            .plotGraphics(using: projector, configuration: configuration)!
+            .shapes
         }
 
-        let lonGraphics = longitudes.flatMap { angle in
+        let lonShapes = longitudes.flatMap { angle in
             StarField.GreatCircle(
                 angle: angle,
                 sense: .longitude
             )
-            .plotGraphics(using: projector)
+            .plotGraphics(using: projector, configuration: configuration)!
+            .shapes
         }
 
-        return latGraphics + lonGraphics
+        return StarField.Graphic(
+            objectId: UUID(),
+            shapes: latShapes + lonShapes)
     }
 }

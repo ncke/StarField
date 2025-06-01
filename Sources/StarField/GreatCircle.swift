@@ -35,14 +35,15 @@ extension StarField {
 extension StarField.GreatCircle: Plottable {
 
     func plotGraphics(
-        using projector: StarField.Projector
-    ) -> [StarField.Graphic] {
+        using projector: StarField.Projector,
+        configuration: StarField.Configuration
+    ) -> StarField.Graphic? {
         plotCircle(using: projector)
     }
 
     private func plotCircle(
         using projector: StarField.Projector
-    ) -> [StarField.Graphic] {
+    ) -> StarField.Graphic {
         // Plot all points on the great circle for this angle, some may
         // be nil if not visible in a specific star field.
         var points = wrap.map { wrappingAngle in
@@ -56,11 +57,11 @@ extension StarField.GreatCircle: Plottable {
 
         // Convert segments into graphics representing the visible
         // parts of the great circle.
-        let graphics = segments.compactMap { segment in
+        let shapes = segments.compactMap { segment in
             convertSegmentToLines(segment)
         }.flatMap { lines in lines }
 
-        return graphics
+        return StarField.Graphic(objectId: UUID(), shapes: shapes)
     }
 
     private func extractSegments(
@@ -86,15 +87,18 @@ extension StarField.GreatCircle: Plottable {
 
     private func convertSegmentToLines(
         _ segment: [CGPoint]
-    ) -> [StarField.Graphic]? {
+    ) -> [StarField.Graphic.Shape]? {
         guard segment.count >= 2 else { return nil }
         var start = segment[0]
-        var lines: [StarField.Graphic] = []
+        var lines: [StarField.Graphic.Shape] = []
+        let color = \StarField.ColorScheme.coordinateLinesColor
 
         for pt in segment[1...] {
-            let line = StarField.Graphic.coordinateLine(
+            let line = StarField.Graphic.Shape.line(
                 start: start,
-                finish: pt)
+                finish: pt,
+                styles: [.stroke(width: 1.0, color: color)],
+                obscurement: .preferred)
 
             lines.append(line)
             start = pt
