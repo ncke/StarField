@@ -8,6 +8,7 @@ public extension StarField {
         public var viewCenter: (Angle, Angle)
         public var diameter: Angle
         public var objects: [any StarFieldObject]
+        public var furniture: [any StarFieldFurniture]
         public var configuration: Configuration
         public var size: CGSize? = nil
 
@@ -15,11 +16,13 @@ public extension StarField {
             viewCenter: (Angle, Angle),
             diameter: Angle,
             objects: [any StarFieldObject],
+            furniture: [any StarFieldFurniture],
             configuration: Configuration = Configuration()
         ) {
             self.viewCenter = viewCenter
             self.diameter = diameter
             self.objects = objects
+            self.furniture = furniture
             self.configuration = configuration
         }
 
@@ -28,6 +31,7 @@ public extension StarField {
                 let viewSize = size ?? geometry.size
                 let layout = Layout(
                     objects: objects,
+                    furniture: furniture,
                     configuration: configuration,
                     viewCenter: viewCenter,
                     viewDiameter: diameter,

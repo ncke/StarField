@@ -7,33 +7,33 @@ extension StarField {
 
     class Layout: ObservableObject {
         let objects: [any StarFieldObject]
+        let furniture: [any StarFieldFurniture]
         let configuration: Configuration
         let viewCenter: (Angle, Angle)
         let viewDiameter: Angle
         let viewSize: CGSize
         let projector: Projector
         let minuteScale: CGFloat
-        //private var visibleObjects = [any PlottableObject]()
-        //private(set) var objectPlots = [UUID: CGPoint]()
+
         private var cancellables = Set<AnyCancellable>()
-        // TODO: We only need a single [UUID: Graphic] now.
-        //private var obscuringGraphics = [UUID: [Graphic]]()
-        private var furnitureDone = CurrentValueSubject<Bool, Never>(false)
+        private var coordinatesDone = CurrentValueSubject<Bool, Never>(false)
         private var objectsDone = CurrentValueSubject<Bool, Never>(false)
+        private var furnitureDone = CurrentValueSubject<Bool, Never>(false)
 
         @Published var furnitureGraphics = [Graphic]()
         @Published var objectGraphics = [Graphic]()
-        //var nameGraphics = [Graphic]()
         @Published var isReadyForNames = false
 
         init(
             objects: [any StarFieldObject],
+            furniture: [any StarFieldFurniture],
             configuration: Configuration,
             viewCenter: (Angle, Angle),
             viewDiameter: Angle,
             viewSize: CGSize
         ) {
             self.objects = objects
+            self.furniture = furniture
             self.configuration = configuration
             self.viewCenter = viewCenter
             self.viewDiameter = viewDiameter
@@ -57,19 +57,15 @@ extension StarField.Layout {
     func build() {
         clearExistingBuiltProducts()
         buildCoordinateLines()
+        buildFurniturePlots()
         buildObjectPlots()
     }
 
     func clearExistingBuiltProducts() {
         cancellables.forEach { c in c.cancel() }
         cancellables.removeAll()
-
-        // TODO: We no longer need this much state, simplify.
         furnitureGraphics = []
         objectGraphics = []
-        //nameGraphics = []
-        //obscuringGraphics = [:]
-        //visibleObjects = []
     }
 
     func buildCoordinateLines() {
@@ -81,13 +77,35 @@ extension StarField.Layout {
             .sink(
                 receiveCompletion: {
                     [weak self] _ in
+                    self?.coordinatesDone.send(true)
+                    self?.checkNameReadiness()
+                },
+                receiveValue: {
+                    [weak self] graphic in
+                    self?.furnitureGraphics.append(graphic)
+                }
+            )
+            .store(in: &cancellables)
+    }
+
+    func buildFurniturePlots() {
+        furniture
+            .compactMap { item in
+                guard let item = item as? Plottable else { return nil }
+                return item.plotGraphics(
+                    using: projector,
+                    configuration: configuration)
+            }
+            .publisher
+            .sink(
+                receiveCompletion: {
+                    [weak self] _ in
                     self?.furnitureDone.send(true)
                     self?.checkNameReadiness()
                 },
                 receiveValue: {
                     [weak self] graphic in
                     self?.furnitureGraphics.append(graphic)
-                    //self?.obscuringGraphics[UUID()] = [graphic]
                 }
             )
             .store(in: &cancellables)
@@ -119,6 +137,7 @@ extension StarField.Layout {
             .store(in: &cancellables)
     }
 
+    // TODO: This doesn't need to return an array now.
     func plotAndRecordObject(
         _ object: any PlottableObject
     ) -> [StarField.Graphic] {
@@ -127,8 +146,6 @@ extension StarField.Layout {
             configuration: configuration)
 
         if let g = graphics {
-            //obscuringGraphics[object.id] = [g]
-            //visibleObjects.append(object)
             return [g]
         }
 
@@ -136,7 +153,10 @@ extension StarField.Layout {
     }
 
     func checkNameReadiness() {
-        isReadyForNames = furnitureDone.value && objectsDone.value
+        isReadyForNames = configuration.showNames
+        && coordinatesDone.value
+        && objectsDone.value
+        && furnitureDone.value
     }
 
     func layoutNames(

@@ -10,6 +10,7 @@ public extension StarField {
         public var showLinesOfLongitude: CoordinateLines
         public var showStarAura: Bool
         public var colorScheme: ColorScheme
+        public var showNames: Bool
         public var nameFont: Font
 
         public init(
@@ -18,6 +19,7 @@ public extension StarField {
             showLinesOfLongitude: CoordinateLines = .standard,
             showStarAura: Bool = true,
             colorScheme: StarField.ColorScheme = StandardColorScheme(),
+            showNames: Bool = true,
             nameFont: Font = Font.system(size: 10.0)
         ) {
             self.projection = projection
@@ -25,6 +27,7 @@ public extension StarField {
             self.showLinesOfLongitude = showLinesOfLongitude
             self.showStarAura = showStarAura
             self.colorScheme = colorScheme
+            self.showNames = showNames
             self.nameFont = nameFont
         }
     }
