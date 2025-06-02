@@ -6,6 +6,10 @@ public protocol StarFieldNameable {
     var names: [String] { get }
 }
 
+// MARK: - TextResolver
+
+typealias TextResolver = (String) -> GraphicsContext.ResolvedText?
+
 // MARK: - Names Fitter
 
 extension StarField {
@@ -91,13 +95,37 @@ extension StarField {
         ) -> StarField.Graphic? {
             guard
                 let graphic = graphicLookup[object.id],
-                let slots = NameSlots.slotsForGraphic(
-                    graphic,
+                let slots = NameSlots.slotsForName(
+                    graphic: graphic,
                     nameSize: nameSize)
             else {
                 return nil
             }
 
+            let (primaryFits, secondaryFits) = findPrimaryAndSecondaryFits(
+                slots: slots,
+                graphic: graphic)
+
+            guard
+                let selected = selectFit(slots: primaryFits, graphic: graphic)
+                    ?? selectFit(slots: secondaryFits, graphic: graphic)
+            else {
+                return nil
+            }
+
+            let shape = Graphic.Shape.text(
+                rect: selected,
+                text: resolvedName,
+                styles: [],
+                obscurement: .always)
+
+            return Graphic(objectId: UUID(), shapes: [shape])
+        }
+
+        private func findPrimaryAndSecondaryFits(
+            slots: [CGRect],
+            graphic: Graphic
+        ) -> ([CGRect], [CGRect]) {
             var primaryFits = [CGRect]()
             var secondaryFits = [CGRect]()
 
@@ -117,19 +145,67 @@ extension StarField {
                 }
             }
 
-            guard
-                let selectedFit = primaryFits.first ?? (secondaryFits.first)
-            else {
-                return nil
+            return (primaryFits, secondaryFits)
+        }
+
+        private func selectFit(
+            slots: [CGRect],
+            graphic: Graphic
+        ) -> CGRect? {
+            guard slots.count > 1 else {
+                return slots.isEmpty ? nil : slots[0]
             }
 
-            let shape = Graphic.Shape.text(
-                rect: selectedFit,
-                text: resolvedName,
-                styles: [],
-                obscurement: .always)
+            return findMostDistantFit(slots: slots, excludingGraphic: graphic)
+        }
 
-            return Graphic(objectId: UUID(), shapes: [shape])
+        private func findMostDistantFit(
+            slots: [CGRect],
+            excludingGraphic: Graphic
+        ) -> CGRect? {
+            var mostDistant: CGRect?
+            var mostDistance = CGFloat.zero
+
+            slots.forEach { slot in
+                let nearestDistance = findDistanceToNearestGraphic(
+                    slot: slot,
+                    excludingGraphic: excludingGraphic)
+
+                if let nd = nearestDistance, nd > mostDistance {
+                    mostDistant = slot
+                    mostDistance = nd
+                }
+            }
+
+            return mostDistant
+        }
+
+        private func findDistanceToNearestGraphic(
+            slot: CGRect,
+            excludingGraphic: Graphic
+        ) -> CGFloat? {
+            let (xSlot, ySlot) = (slot.midX, slot.midY)
+            var nearestDistance: CGFloat?
+
+            for (key, graphic) in graphicLookup {
+                if graphic.objectId == excludingGraphic.objectId {
+                    continue
+                }
+
+                for shape in graphic.shapes {
+                    let midpoint = shape.midpoint
+                    let xd = xSlot - midpoint.x
+                    let yd = ySlot - midpoint.y
+                    let distance = xd * xd + yd * yd
+
+                    let nd = nearestDistance ?? CGFloat.greatestFiniteMagnitude
+                    if distance < nd {
+                        nearestDistance = distance
+                    }
+                }
+            }
+
+            return nearestDistance
         }
 
         private func isSlotObscured(

@@ -86,6 +86,21 @@ extension StarField.Graphic {
             case .text(_, _, let styles, _): return styles
             }
         }
+
+        var midpoint: CGPoint {
+            switch self {
+            case .rectangle(let rect, _, _):
+                return CGPoint(x: rect.midX, y: rect.midY)
+            case .line(let start, let finish, _, _):
+                return CGPoint(
+                    x: 0.5 * (start.x + finish.x),
+                    y: 0.5 * (start.y + finish.y))
+            case .circle(let center, _, _, _):
+                return center
+            case .text(let rect, _, _, _):
+                return CGPoint(x: rect.midX, y: rect.midY)
+            }
+        }
     }
 
 }

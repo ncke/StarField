@@ -13,8 +13,8 @@ extension StarField {
 
         private static let distance: CGFloat = 1.0
 
-        static func slotsForGraphic(
-            _ graphic: Graphic,
+        static func slotsForName(
+            graphic: Graphic,
             nameSize: CGSize
         ) -> [CGRect]? {
             guard

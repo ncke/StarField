@@ -3,8 +3,6 @@ import SwiftUI
 
 // MARK: - Layout
 
-typealias TextResolver = (String) -> GraphicsContext.ResolvedText?
-
 extension StarField {
 
     class Layout: ObservableObject {
