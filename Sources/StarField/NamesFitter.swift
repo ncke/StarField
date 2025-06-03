@@ -224,8 +224,7 @@ extension StarField {
                     }
 
                     if shape.obscurement == .always {
-                        result = .always
-                        break
+                        return .always
                     }
                 }
             }

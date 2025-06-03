@@ -139,7 +139,7 @@ extension StarField.Star: Plottable {
         _ magnitude: Double,
         projector: StarField.Projector
     ) -> CGFloat {
-        let sized = max(1.0, 10.0 - magnitude) * 2.0 // * minuteScale
+        let sized = max(1.0, 8.0 - magnitude) * 1.6 // * minuteScale
         return (0.5 * sized).rounded(.up)
     }
 

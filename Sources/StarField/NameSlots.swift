@@ -48,16 +48,20 @@ extension StarField {
             angle: Int,
             anchor: (CGFloat, CGFloat)
         ) -> CGRect {
+            let nw = nameSize.width.rounded(.up)
+            let nh = nameSize.height.rounded(.up)
             let (ax, ay) = anchor
-            let (axName, ayName) = (nameSize.width * ax, nameSize.height * ay)
+            let (axName, ayName) = (nw * ax, nh * ay)
             let alpha = Angle(degrees: Double(angle - 90))
             let radiusName = objectRadius + distance
             let axRelative = radiusName * cos(alpha.radians)
             let ayRelative = radiusName * sin(alpha.radians)
-            let x = objectCenter.x + axRelative - axName
-            let y = objectCenter.y + ayRelative - ayName
+            let x = Int(objectCenter.x + axRelative - axName)
+            let y = Int(objectCenter.y + ayRelative - ayName)
 
-            return CGRect(origin: CGPoint(x: x, y: y), size: nameSize)
+            return CGRect(
+                origin: CGPoint(x: x, y: y),
+                size: CGSize(width: nw, height: nh))
         }
 
         private static func findCenterAndRadiusOfGraphic(
