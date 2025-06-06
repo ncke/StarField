@@ -7,7 +7,7 @@ public extension StarField {
     public struct Content: SwiftUI.View {
         public var viewCenter: (Angle, Angle)
         public var diameter: Angle
-        public var objects: [any StarFieldObject]
+        public var objects: [any Object]
         public var furniture: [any StarFieldFurniture]
         public var configuration: Configuration
         public var size: CGSize? = nil
@@ -16,7 +16,7 @@ public extension StarField {
         public init(
             viewCenter: (Angle, Angle),
             diameter: Angle,
-            objects: [any StarFieldObject],
+            objects: [any StarField.Object],
             furniture: [any StarFieldFurniture],
             configuration: Configuration = Configuration(),
             tapHandler: TapHandler? = nil

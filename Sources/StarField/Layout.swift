@@ -6,8 +6,8 @@ import SwiftUI
 extension StarField {
 
     final class Layout: ObservableObject {
-        let objects: [any StarFieldObject]
-        let objectsIndex: [UUID: StarFieldObject]
+        let objects: [any Object]
+        let objectsIndex: [UUID: Object]
         let furniture: [any StarFieldFurniture]
         let configuration: Configuration
         let viewCenter: (Angle, Angle)
@@ -26,7 +26,7 @@ extension StarField {
         @Published var isReadyForNames = false
 
         init(
-            objects: [any StarFieldObject],
+            objects: [any Object],
             furniture: [any StarFieldFurniture],
             configuration: Configuration,
             viewCenter: (Angle, Angle),
@@ -177,7 +177,7 @@ extension StarField.Layout {
 
 extension StarField.Layout: StarField.NearestObjectProvider {
 
-    func nearestObject(to location: CGPoint) -> (any StarFieldObject, CGFloat)? {
+    func nearestObject(to location: CGPoint) -> (any StarField.Object, CGFloat)? {
         guard objectsDone.value else { return nil }
 
         let (lx, ly) = (location.x, location.y)

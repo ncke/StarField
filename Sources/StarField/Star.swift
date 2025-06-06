@@ -4,7 +4,7 @@ import SwiftUI
 
 extension StarField {
 
-    public struct Star: StarFieldObject, StarFieldNameable {
+    public struct Star: Object, StarFieldNameable {
         public let id: UUID
         public let position: Position
         public let magnitude: Double

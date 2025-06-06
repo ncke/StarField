@@ -5,7 +5,7 @@ import SwiftUI
 extension StarField {
 
     public typealias TapHandler =
-    (StarField.Position, (any StarFieldObject)?) -> Void
+    (StarField.Position, (any Object)?) -> Void
 
 }
 
@@ -17,7 +17,7 @@ extension StarField {
 
         func nearestObject(
             to location: CGPoint
-        ) -> (any StarFieldObject, CGFloat)?
+        ) -> (any Object, CGFloat)?
 
     }
 
@@ -31,7 +31,7 @@ extension StarField {
 
         struct Resolution {
             let position: StarField.Position
-            let nearestObject: (any StarFieldObject)?
+            let nearestObject: (any Object)?
         }
 
         let effectiveRadius: CGFloat
@@ -68,7 +68,7 @@ extension StarField {
 
         private func determineNearestObject(
             to location: CGPoint
-        ) -> (any StarFieldObject)? {
+        ) -> (any Object)? {
             let nearest = nearestObjectProvider.nearestObject(to: location)
             guard
                 let (object, distance) = nearest,

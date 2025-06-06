@@ -16,12 +16,12 @@ extension StarField {
 
     class NamesFitter {
         private let visibleObjectIds: Set<UUID>
-        private let objectLookup: [UUID: any StarFieldObject]
+        private let objectLookup: [UUID: any Object]
         private let viewSize: CGSize
         private var graphicLookup: [UUID: StarField.Graphic]
 
         init(
-            objects: [any StarFieldObject],
+            objects: [any Object],
             graphics: [StarField.Graphic],
             viewSize: CGSize
         ) {
@@ -36,7 +36,7 @@ extension StarField {
             self.visibleObjectIds = visibleIds
             self.graphicLookup = graphicLookup
 
-            var objectLookup = [UUID: any StarFieldObject]()
+            var objectLookup = [UUID: any Object]()
             objects.forEach { object in
                 if visibleIds.contains(object.id) {
                     objectLookup[object.id] = object
@@ -58,7 +58,7 @@ extension StarField {
         }
 
         private func fitNamesForObject(
-            _ object: any StarFieldObject,
+            _ object: any Object,
             textResolver: TextResolver
         ) -> [StarField.Graphic]? {
             guard
@@ -89,7 +89,7 @@ extension StarField {
         }
 
         private func fitNameForObject(
-            _ object: any StarFieldObject,
+            _ object: any Object,
             resolvedName: GraphicsContext.ResolvedText,
             nameSize: CGSize
         ) -> StarField.Graphic? {

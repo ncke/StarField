@@ -42,7 +42,7 @@ struct MockReversibleStraightThroughProjector:
 }
 
 struct MockNearestObjectProvider: StarField.NearestObjectProvider {
-    var nearestObject: (any StarFieldObject)?
+    var nearestObject: (any StarField.Object)?
     var nearestDistance: CGFloat?
 
     func nearestObject(
