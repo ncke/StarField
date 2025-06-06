@@ -1,12 +1,16 @@
 import SwiftUI
 
-// MARK: - StarFieldNameable
+// MARK: - StarField Nameable
 
-public protocol StarFieldNameable {
-    var names: [String] { get }
+extension StarField {
+
+    public protocol Nameable {
+        var names: [String] { get }
+    }
+
 }
 
-// MARK: - TextResolver
+// MARK: - Text Resolver
 
 typealias TextResolver = (String) -> GraphicsContext.ResolvedText?
 
@@ -62,7 +66,7 @@ extension StarField {
             textResolver: TextResolver
         ) -> [StarField.Graphic]? {
             guard
-                let nameable = object as? StarFieldNameable
+                let nameable = object as? Nameable
             else {
                 return nil
             }
