@@ -12,6 +12,7 @@ public extension StarField {
         public var colorScheme: ColorScheme
         public var showNames: Bool
         public var nameFont: Font
+        public var tapEffectiveRadius: CGFloat?
 
         public init(
             projection: Projection = .gnomonic,
@@ -20,7 +21,8 @@ public extension StarField {
             showStarAura: Bool = true,
             colorScheme: StarField.ColorScheme = StandardColorScheme(),
             showNames: Bool = true,
-            nameFont: Font = Font.system(size: 10.0)
+            nameFont: Font = Font.system(size: 10.0),
+            tapEffectiveRadius: CGFloat = 24.0
         ) {
             self.projection = projection
             self.showLinesOfLatitude = showLinesOfLatitude
@@ -29,6 +31,7 @@ public extension StarField {
             self.colorScheme = colorScheme
             self.showNames = showNames
             self.nameFont = nameFont
+            self.tapEffectiveRadius = tapEffectiveRadius
         }
     }
 

@@ -11,33 +11,52 @@ public extension StarField {
         public var furniture: [any StarFieldFurniture]
         public var configuration: Configuration
         public var size: CGSize? = nil
+        public let tapHandler: TapHandler?
 
         public init(
             viewCenter: (Angle, Angle),
             diameter: Angle,
             objects: [any StarFieldObject],
             furniture: [any StarFieldFurniture],
-            configuration: Configuration = Configuration()
+            configuration: Configuration = Configuration(),
+            tapHandler: TapHandler? = nil
         ) {
             self.viewCenter = viewCenter
             self.diameter = diameter
             self.objects = objects
             self.furniture = furniture
             self.configuration = configuration
+            self.tapHandler = tapHandler
         }
 
         public var body: some View {
             GeometryReader { geometry in
                 let viewSize = size ?? geometry.size
+                let projector = configuration.projection.makeProjector(
+                    viewCenter: viewCenter,
+                    viewDiameter: diameter,
+                    viewSize: viewSize)
                 let layout = Layout(
                     objects: objects,
                     furniture: furniture,
                     configuration: configuration,
                     viewCenter: viewCenter,
                     viewDiameter: diameter,
-                    viewSize: viewSize)
+                    viewSize: viewSize,
+                    projector: projector)
+                let tapResolver = TapResolver(
+                    effectiveRadius: configuration.tapEffectiveRadius,
+                    projector: projector,
+                    nearestObjectProvider: layout)
 
                 GraphicsStack(layout: layout)
+                    .onTapGesture { location in
+                        if  let tapHandler = tapHandler,
+                            let result = tapResolver?.resolveTap(at: location)
+                        {
+                            tapHandler(result.position, result.nearestObject)
+                        }
+                    }
                     .onAppear { layout.build() }
                     .environmentObject(configuration)
             }

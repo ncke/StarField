@@ -5,8 +5,9 @@ import SwiftUI
 
 extension StarField {
 
-    class Layout: ObservableObject {
+    final class Layout: ObservableObject {
         let objects: [any StarFieldObject]
+        let objectsIndex: [UUID: StarFieldObject]
         let furniture: [any StarFieldFurniture]
         let configuration: Configuration
         let viewCenter: (Angle, Angle)
@@ -30,18 +31,18 @@ extension StarField {
             configuration: Configuration,
             viewCenter: (Angle, Angle),
             viewDiameter: Angle,
-            viewSize: CGSize
+            viewSize: CGSize,
+            projector: Projector
         ) {
             self.objects = objects
+            self.objectsIndex = Dictionary(
+                uniqueKeysWithValues: objects.map { obj in (obj.id, obj) })
             self.furniture = furniture
             self.configuration = configuration
             self.viewCenter = viewCenter
             self.viewDiameter = viewDiameter
             self.viewSize = viewSize
-            self.projector = configuration.projection.makeProjector(
-                viewCenter: viewCenter,
-                viewDiameter: viewDiameter,
-                viewSize: viewSize)
+            self.projector = projector
             self.minuteScale = Self.computeMinuteLength(
                 viewCenter: viewCenter,
                 projector: projector)
@@ -168,6 +169,43 @@ extension StarField.Layout {
             viewSize: viewSize)
 
         return fitter.fit(textResolver: textResolver)
+    }
+
+}
+
+// MARK: - Nearest Object
+
+extension StarField.Layout: StarField.NearestObjectProvider {
+
+    func nearestObject(to location: CGPoint) -> (any StarFieldObject, CGFloat)? {
+        guard objectsDone.value else { return nil }
+
+        let (lx, ly) = (location.x, location.y)
+        var nearestGraphic: StarField.Graphic? = nil
+        var nearestDistance: CGFloat = CGFloat.greatestFiniteMagnitude
+
+        for graphic in self.objectGraphics {
+            for shape in graphic.shapes {
+                let midpoint = shape.midpoint
+                let (dx, dy) = (lx - midpoint.x, ly - midpoint.y)
+                let distance = dx * dx + dy * dy
+
+                if distance < nearestDistance {
+                    nearestGraphic = graphic
+                    nearestDistance = distance
+                }
+            }
+        }
+
+        guard
+            let objectId = nearestGraphic?.objectId,
+            let object = objectsIndex[objectId]
+        else {
+            return nil
+        }
+
+        let rootDistance = sqrt(nearestDistance)
+        return (object, rootDistance)
     }
 
 }
