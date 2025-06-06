@@ -1,5 +1,7 @@
 import SwiftUI
 
+// MARK: - Names View
+
 extension StarField {
 
     struct NamesView: SwiftUI.View {

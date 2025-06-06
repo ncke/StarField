@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - GraphicsView
+// MARK: - Graphics View
 
 extension StarField {
 

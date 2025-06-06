@@ -9,6 +9,12 @@ extension StarField {
         func isPlotNearView(_ plot: CGPoint) -> Bool
     }
 
+}
+
+// MARK: - Reversible Projector
+
+extension StarField {
+
     protocol ReversibleProjector {
         func reversePlot(_ plot: CGPoint) -> StarField.Position?
     }

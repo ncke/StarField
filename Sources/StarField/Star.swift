@@ -31,11 +31,11 @@ extension StarField {
 
 }
 
-// MARK: - PlottableObject
+// MARK: - Plottable Object Conformance
 
 extension StarField.Star: PlottableObject {}
 
-// MARK: - Plottable
+// MARK: - Plottable Conformance
 
 extension StarField.Star: Plottable {
 

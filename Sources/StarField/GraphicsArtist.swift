@@ -1,5 +1,7 @@
 import SwiftUI
 
+// MARK: - Graphics Artist
+
 extension StarField {
 
     struct GraphicsArtist {

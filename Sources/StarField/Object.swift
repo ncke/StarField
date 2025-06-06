@@ -1,6 +1,6 @@
 import Foundation
 
-// MARK: - StarFieldObject
+// MARK: - Object
 
 extension StarField {
 
@@ -12,6 +12,6 @@ extension StarField {
 
 }
 
-// MARK: - PlottableObject
+// MARK: - Plottable Object
 
 protocol PlottableObject: StarField.Object, Plottable {}

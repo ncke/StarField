@@ -1,5 +1,7 @@
 import SwiftUI
 
+// MARK: - Position
+
 extension StarField {
 
     public struct Position {

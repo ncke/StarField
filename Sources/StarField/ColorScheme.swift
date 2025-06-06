@@ -14,7 +14,7 @@ public extension StarField {
 
 }
 
-// MARK: - StandardColorScheme
+// MARK: - Standard Color Scheme
 
 public extension StarField {
 

@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - GreatCircle
+// MARK: - Great Circle
 
 extension StarField {
 
@@ -30,7 +30,7 @@ extension StarField {
 
 }
 
-// MARK: - Plottable
+// MARK: - Plottable Conformation
 
 extension StarField.GreatCircle: Plottable {
 

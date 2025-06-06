@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - ConstellationPattern
+// MARK: - Constellation Pattern
 
 extension StarField {
 
@@ -15,6 +15,8 @@ extension StarField {
     }
 
 }
+
+// MARK: - Plottable Conformation
 
 extension StarField.ConstellationPattern: Plottable {
 
