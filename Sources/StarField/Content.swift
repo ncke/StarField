@@ -8,7 +8,7 @@ public extension StarField {
         public var viewCenter: (Angle, Angle)
         public var diameter: Angle
         public var objects: [any Object]
-        public var furniture: [any StarFieldFurniture]
+        public var furniture: [any Furniture]
         public var configuration: Configuration
         public var size: CGSize? = nil
         public let tapHandler: TapHandler?
@@ -16,8 +16,8 @@ public extension StarField {
         public init(
             viewCenter: (Angle, Angle),
             diameter: Angle,
-            objects: [any StarField.Object],
-            furniture: [any StarFieldFurniture],
+            objects: [any Object],
+            furniture: [any Furniture],
             configuration: Configuration = Configuration(),
             tapHandler: TapHandler? = nil
         ) {

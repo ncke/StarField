@@ -4,7 +4,7 @@ import SwiftUI
 
 extension StarField {
 
-    public struct ConstellationPattern: StarFieldFurniture {
+    public struct ConstellationPattern: Furniture {
         public let id: UUID
         public let pattern: [(Star, Star)]
 

@@ -2,7 +2,7 @@ import SwiftUI
 
 extension StarField {
 
-    public protocol StarFieldFurniture: Identifiable {
+    public protocol Furniture: Identifiable {
         var id: UUID { get }
     }
 
