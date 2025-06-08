@@ -14,11 +14,11 @@ extension StarField {
         fileprivate typealias Positioner = (Angle, Angle) -> StarField.Position
 
         let angle: Angle
-        let sense: CoordinateLines.Sense
+        let sense: CoordinateLine.Sense
         private let wrap: [Angle]
         private let positioner: Positioner
 
-        init(angle: Angle, sense: CoordinateLines.Sense) {
+        init(angle: Angle, sense: CoordinateLine.Sense) {
             self.angle = angle
             self.sense = sense
             self.wrap = sense.wrappingAngles
@@ -110,7 +110,7 @@ extension StarField.GreatCircle: Plottable {
 
 // MARK: - Sense Helpers
 
-fileprivate extension StarField.CoordinateLines.Sense {
+fileprivate extension StarField.CoordinateLine.Sense {
 
     var wrappingAngles: [Angle] {
         switch self {
