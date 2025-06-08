@@ -5,6 +5,7 @@ import SwiftUI
 extension StarField {
 
     public protocol Nameable {
+        var id: UUID { get }
         var names: [String] { get }
     }
 
@@ -19,86 +20,71 @@ typealias TextResolver = (String) -> GraphicsContext.ResolvedText?
 extension StarField {
 
     class NamesFitter {
-        private let visibleObjectIds: Set<UUID>
-        private let objectLookup: [UUID: any Object]
+        private let nameableLookup: [UUID: any Nameable]
+        private var graphicsLookup: [UUID: StarField.Graphic]
         private let viewSize: CGSize
-        private var graphicLookup: [UUID: StarField.Graphic]
 
         init(
-            objects: [any Object],
+            nameables: [any Nameable],
             graphics: [StarField.Graphic],
             viewSize: CGSize
         ) {
             self.viewSize = viewSize
 
-            var visibleIds = Set<UUID>()
-            var graphicLookup = [UUID: StarField.Graphic]()
-            graphics.forEach { graphic in
-                visibleIds.insert(graphic.objectId)
-                graphicLookup[graphic.objectId] = graphic
-            }
-            self.visibleObjectIds = visibleIds
-            self.graphicLookup = graphicLookup
+            let graphicsLookup = Dictionary(
+                uniqueKeysWithValues: graphics.map { g in (g.objectId, g) })
+            self.graphicsLookup = graphicsLookup
 
-            var objectLookup = [UUID: any Object]()
-            objects.forEach { object in
-                if visibleIds.contains(object.id) {
-                    objectLookup[object.id] = object
-                }
-            }
-            self.objectLookup = objectLookup
+            let visibleIds = Set(graphicsLookup.keys)
+            self.nameableLookup = Dictionary(
+                uniqueKeysWithValues: nameables.compactMap {
+                    n in visibleIds.contains(n.id) ? (n.id, n) : nil })
         }
 
         func fit(textResolver: TextResolver) -> [StarField.Graphic] {
-            let names = visibleObjectIds.compactMap { objectId in
-                objectLookup[objectId]
-            }.sorted { object1, object2 in
-                object1.magnitude < object2.magnitude
-            }.compactMap { object in
-                fitNamesForObject(object, textResolver: textResolver)
-            }.flatMap { $0 }
+            let names = nameableLookup
+                .keys
+                .compactMap { id in nameableLookup[id] }
+                .compactMap { nameable in
+                    fitNames(for: nameable, textResolver: textResolver)
+                }
+                .flatMap { $0 }
 
             return names
         }
 
-        private func fitNamesForObject(
-            _ object: any Object,
+        private func fitNames(
+            for nameable: any Nameable,
             textResolver: TextResolver
         ) -> [StarField.Graphic]? {
-            guard
-                let nameable = object as? Nameable
-            else {
-                return nil
-            }
-
             let nameGraphics: [StarField.Graphic] = nameable.names.compactMap {
                 name in
 
                 guard let resolved = textResolver(name) else { return nil }
                 let nameSize = resolved.measure(in: viewSize)
 
-                guard let graphic = fitNameForObject(
-                    object,
+                guard let graphic = fitName(
+                    for: nameable,
                     resolvedName: resolved,
                     nameSize: nameSize)
                 else {
                     return nil
                 }
 
-                graphicLookup[graphic.objectId] = graphic
+                graphicsLookup[graphic.objectId] = graphic
                 return graphic
             }
 
             return nameGraphics.isEmpty ? nil : nameGraphics
         }
 
-        private func fitNameForObject(
-            _ object: any Object,
+        private func fitName(
+            for nameable: any Nameable,
             resolvedName: GraphicsContext.ResolvedText,
             nameSize: CGSize
         ) -> StarField.Graphic? {
             guard
-                let graphic = graphicLookup[object.id],
+                let graphic = graphicsLookup[nameable.id],
                 let slots = NameSlots.slotsForName(
                     graphic: graphic,
                     nameSize: nameSize)
@@ -140,7 +126,7 @@ extension StarField {
 
                 let generalObscurement = isSlotObscured(
                     slot,
-                    by: Array(graphicLookup.values))
+                    by: Array(graphicsLookup.values))
 
                 switch generalObscurement {
                 case .always: continue
@@ -191,7 +177,7 @@ extension StarField {
             let (xSlot, ySlot) = (slot.midX, slot.midY)
             var nearestDistance: CGFloat?
 
-            for (_, graphic) in graphicLookup {
+            for (_, graphic) in graphicsLookup {
                 if graphic.objectId == excludingGraphic.objectId {
                     continue
                 }

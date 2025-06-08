@@ -50,7 +50,7 @@ extension StarField {
     }
 }
 
-// MARK: - Build
+// MARK: - Build Graphics
 
 extension StarField.Layout {
 
@@ -137,11 +137,24 @@ extension StarField.Layout {
         && furnitureDone.value
     }
 
+}
+
+// MARK: - Name Layout
+
+extension StarField.Layout {
+
     func layoutNames(
         using textResolver: TextResolver
     ) -> [StarField.Graphic] {
+        let nameables = objects.sorted { obj1, obj2 in
+            obj1.magnitude < obj2.magnitude
+        }
+            .compactMap { obj in
+            obj as? StarField.Nameable
+        }
+
         let fitter = StarField.NamesFitter(
-            objects: objects,
+            nameables: nameables,
             graphics: furnitureGraphics + objectGraphics,
             viewSize: viewSize)
 
@@ -154,7 +167,9 @@ extension StarField.Layout {
 
 extension StarField.Layout: StarField.NearestObjectProvider {
 
-    func nearestObject(to location: CGPoint) -> (any StarField.Object, CGFloat)? {
+    func nearestObject(
+        to location: CGPoint
+    ) -> (any StarField.Object, CGFloat)? {
         guard objectsDone.value else { return nil }
 
         let (lx, ly) = (location.x, location.y)
