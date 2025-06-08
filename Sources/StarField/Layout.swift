@@ -17,7 +17,6 @@ extension StarField {
         let minuteScale: CGFloat
 
         private var cancellables = Set<AnyCancellable>()
-        private var coordinatesDone = CurrentValueSubject<Bool, Never>(false)
         private var objectsDone = CurrentValueSubject<Bool, Never>(false)
         private var furnitureDone = CurrentValueSubject<Bool, Never>(false)
 
@@ -57,39 +56,18 @@ extension StarField.Layout {
 
     func build() {
         clearExistingBuiltProducts()
-        buildCoordinateLines()
         buildFurniturePlots()
         buildObjectPlots()
     }
 
-    func clearExistingBuiltProducts() {
+    private func clearExistingBuiltProducts() {
         cancellables.forEach { c in c.cancel() }
         cancellables.removeAll()
         furnitureGraphics = []
         objectGraphics = []
     }
 
-    func buildCoordinateLines() {
-        let lats = configuration.showLinesOfLatitude.enumerateForLatitude()
-        let lons = configuration.showLinesOfLongitude.enumerateForLongitude()
-        StarField.CoordinateLines(latitudes: lats, longitudes: lons)
-            .plotGraphics(using: projector, configuration: configuration)
-            .publisher
-            .sink(
-                receiveCompletion: {
-                    [weak self] _ in
-                    self?.coordinatesDone.send(true)
-                    self?.checkNameReadiness()
-                },
-                receiveValue: {
-                    [weak self] graphic in
-                    self?.furnitureGraphics.append(graphic)
-                }
-            )
-            .store(in: &cancellables)
-    }
-
-    func buildFurniturePlots() {
+    private func buildFurniturePlots() {
         furniture
             .compactMap { item in
                 guard let item = item as? Plottable else { return nil }
@@ -112,7 +90,7 @@ extension StarField.Layout {
             .store(in: &cancellables)
     }
 
-    func buildObjectPlots() {
+    private func buildObjectPlots() {
         objects
             .compactMap {
                 obj in obj as? (any PlottableObject)
@@ -139,7 +117,7 @@ extension StarField.Layout {
     }
 
     // TODO: This doesn't need to return an array now.
-    func plotAndRecordObject(
+    private func plotAndRecordObject(
         _ object: any PlottableObject
     ) -> [StarField.Graphic] {
         let graphics = object.plotGraphics(
@@ -153,9 +131,8 @@ extension StarField.Layout {
         return []
     }
 
-    func checkNameReadiness() {
+    private func checkNameReadiness() {
         isReadyForNames = configuration.showNames
-        && coordinatesDone.value
         && objectsDone.value
         && furnitureDone.value
     }

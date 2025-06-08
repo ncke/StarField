@@ -12,14 +12,13 @@ extension StarField {
         // This construction differs between great circles of latitude and
         // great circles on longitude.
         fileprivate typealias Positioner = (Angle, Angle) -> StarField.Position
-        enum Sense { case latitude, longitude }
 
         let angle: Angle
-        let sense: Sense
+        let sense: CoordinateLines.Sense
         private let wrap: [Angle]
         private let positioner: Positioner
 
-        init(angle: Angle, sense: Sense) {
+        init(angle: Angle, sense: CoordinateLines.Sense) {
             self.angle = angle
             self.sense = sense
             self.wrap = sense.wrappingAngles
@@ -111,7 +110,7 @@ extension StarField.GreatCircle: Plottable {
 
 // MARK: - Sense Helpers
 
-fileprivate extension StarField.GreatCircle.Sense {
+fileprivate extension StarField.CoordinateLines.Sense {
 
     var wrappingAngles: [Angle] {
         switch self {
