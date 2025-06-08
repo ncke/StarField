@@ -191,7 +191,7 @@ extension StarField {
             let (xSlot, ySlot) = (slot.midX, slot.midY)
             var nearestDistance: CGFloat?
 
-            for (key, graphic) in graphicLookup {
+            for (_, graphic) in graphicLookup {
                 if graphic.objectId == excludingGraphic.objectId {
                     continue
                 }

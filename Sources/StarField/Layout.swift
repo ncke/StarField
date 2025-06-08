@@ -7,7 +7,7 @@ extension StarField {
 
     final class Layout: ObservableObject {
         let objects: [any Object]
-        let objectsIndex: [UUID: Object]
+        let objectsIndex: [UUID: any Object]
         let furniture: [any Furniture]
         let configuration: Configuration
         let viewCenter: (Angle, Angle)

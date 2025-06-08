@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - StarField
 
-public extension StarField {
+extension StarField {
 
     public struct Content: SwiftUI.View {
         public var viewCenter: (Angle, Angle)

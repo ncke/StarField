@@ -47,7 +47,7 @@ struct MockNearestObjectProvider: StarField.NearestObjectProvider {
 
     func nearestObject(
         to location: CGPoint
-    ) -> (any StarFieldObject, CGFloat)? {
+    ) -> (any StarField.Object, CGFloat)? {
         guard
             let object = nearestObject,
             let distance = nearestDistance

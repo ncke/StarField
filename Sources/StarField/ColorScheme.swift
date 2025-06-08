@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - ColorScheme
 
-public extension StarField {
+extension StarField {
 
     public protocol ColorScheme {
         var backgroundColor: Color { get }
@@ -16,7 +16,7 @@ public extension StarField {
 
 // MARK: - Standard Color Scheme
 
-public extension StarField {
+extension StarField {
 
     public struct StandardColorScheme: ColorScheme {
         public let backgroundColor: Color = Color.rgb(240, 255, 255)

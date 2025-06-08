@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - Configuration
 
-public extension StarField {
+extension StarField {
 
     public class Configuration: ObservableObject {
         public var projection: Projection
@@ -39,7 +39,7 @@ public extension StarField {
 
 // MARK: - Coordinate Lines
 
-public extension StarField.Configuration {
+extension StarField.Configuration {
 
     public enum CoordinateLines {
         case none

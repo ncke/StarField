@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - Projection
 
-public extension StarField {
+extension StarField {
 
     public enum Projection {
         case gnomonic
