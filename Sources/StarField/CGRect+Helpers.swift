@@ -20,3 +20,54 @@ extension CGRect {
     }
 
 }
+
+// MARK: - CGRect Line Intersections
+
+extension CGRect {
+
+    enum Wall {
+        case north, east, south, west
+    }
+
+    typealias LinearIntersection = (Wall, CGPoint)
+
+    func linearIntersections(
+        lineStart start: CGPoint,
+        finish: CGPoint
+    ) -> [LinearIntersection] {
+        let rect = self.standardized
+        if start.x < rect.minX && finish.x < rect.minX { return [] }
+        if start.x > rect.maxX && finish.x > rect.maxX { return [] }
+        if start.y < rect.minY && finish.y < rect.minY { return [] }
+        if start.y > rect.maxY && finish.y > rect.maxY { return [] }
+
+        let dx = finish.x - start.x
+        let dy = finish.y - start.y
+
+        func hIntersect(y: CGFloat, wall: Wall) -> (Wall, CGPoint)? {
+            guard dy != 0 else { return nil }
+            let t = (y - start.y) / dy
+            guard t >= 0.0, t <= 1.0 else { return nil }
+            let x = start.x + t * dx
+            guard x >= self.minX, x <= self.maxX else { return nil }
+            return (wall, CGPoint(x: x, y: y))
+        }
+
+        func vIntersect(x: CGFloat, wall: Wall) -> (Wall, CGPoint)? {
+            guard dx != 0 else { return nil }
+            let t = (x - start.x) / dx
+            guard t >= 0.0, t <= 1.0 else { return nil }
+            let y = start.y + t * dy
+            guard y >= self.minY, y <= self.maxY else { return nil }
+            return (wall, CGPoint(x: x, y: y))
+        }
+
+        return [
+            hIntersect(y: self.maxY, wall: .north),
+            vIntersect(x: self.maxX, wall: .east),
+            hIntersect(y: self.minY, wall: .south),
+            vIntersect(x: self.minX, wall: .west)
+        ].compactMap(\.self)
+    }
+
+}

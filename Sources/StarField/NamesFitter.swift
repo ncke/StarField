@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - StarField Nameable
+// MARK: - Nameable
 
 extension StarField {
 
@@ -11,15 +11,43 @@ extension StarField {
 
 }
 
+// MARK: - Name Fitting Style
+
+extension StarField {
+
+    enum NameFittingStyle {
+        /// The name should be strictly outside the graphics.
+        case exterior
+        /// The name may be inside the graphics.
+        case interior
+        /// The name should be placed at the view boundary, if possible.
+        case boundary
+    }
+
+}
+
+extension StarField {
+
+    protocol NameFittingStyleable {
+        var nameFittingStyle: NameFittingStyle { get }
+    }
+
+}
+
 // MARK: - Text Resolver
 
-typealias TextResolver = (String) -> GraphicsContext.ResolvedText?
+extension StarField {
+
+    typealias TextResolver = (String) -> GraphicsContext.ResolvedText?
+
+}
 
 // MARK: - Names Fitter
 
 extension StarField {
 
     class NamesFitter {
+        private let nameableOrdering: [UUID]
         private let nameableLookup: [UUID: any Nameable]
         private var graphicsLookup: [UUID: StarField.Graphic]
         private let viewSize: CGSize
@@ -30,6 +58,7 @@ extension StarField {
             viewSize: CGSize
         ) {
             self.viewSize = viewSize
+            self.nameableOrdering = nameables.map { n in n.id }
 
             let graphicsLookup = Dictionary(
                 uniqueKeysWithValues: graphics.map { g in (g.objectId, g) })
@@ -42,11 +71,13 @@ extension StarField {
         }
 
         func fit(textResolver: TextResolver) -> [StarField.Graphic] {
-            let names = nameableLookup
-                .keys
+            let names = nameableOrdering
                 .compactMap { id in nameableLookup[id] }
                 .compactMap { nameable in
-                    fitNames(for: nameable, textResolver: textResolver)
+                    fitNames(
+                        for: nameable,
+                        fittingStyle: fittingStyle(forNameable: nameable),
+                        textResolver: textResolver)
                 }
                 .flatMap { $0 }
 
@@ -55,6 +86,7 @@ extension StarField {
 
         private func fitNames(
             for nameable: any Nameable,
+            fittingStyle: NameFittingStyle,
             textResolver: TextResolver
         ) -> [StarField.Graphic]? {
             let nameGraphics: [StarField.Graphic] = nameable.names.compactMap {
@@ -83,18 +115,64 @@ extension StarField {
             resolvedName: GraphicsContext.ResolvedText,
             nameSize: CGSize
         ) -> StarField.Graphic? {
-            guard
-                let graphic = graphicsLookup[nameable.id],
-                let slots = NameSlots.slotsForName(
-                    graphic: graphic,
-                    nameSize: nameSize)
-            else {
+            guard let graphic = graphicsLookup[nameable.id] else {
                 return nil
             }
 
+            let fittingStyle = fittingStyle(forNameable: nameable)
+
+            switch fittingStyle {
+
+            case .interior, .exterior:
+                let slots = NameSlots.slotsForName(
+                    graphic: graphic,
+                    nameSize: nameSize)
+
+                return fitInFieldName(
+                    slots: slots,
+                    fittingStyle: fittingStyle,
+                    resolvedName: resolvedName,
+                    graphic: graphic)
+
+            case .boundary:
+                let slots = BoundarySlots.slotsForName(
+                    graphic: graphic,
+                    nameSize: nameSize,
+                    viewSize: viewSize)
+
+                return fitBoundaryName(
+                    slots: slots,
+                    resolvedName: resolvedName)
+            }
+        }
+
+        private func fitBoundaryName(
+            slots: [CGRect]?,
+            resolvedName: GraphicsContext.ResolvedText,
+        ) -> StarField.Graphic? {
+            guard let slot = slots?.first else { return nil }
+
+            let shape = Graphic.Shape.text(
+                rect: slot,
+                text: resolvedName,
+                styles: [],
+                obscurement: .always)
+
+            return Graphic(objectId: UUID(), shapes: [shape])
+        }
+
+        private func fitInFieldName(
+            slots: [CGRect]?,
+            fittingStyle: NameFittingStyle,
+            resolvedName: GraphicsContext.ResolvedText,
+            graphic: Graphic
+        ) -> StarField.Graphic? {
+            guard let slots = slots else { return nil }
+
             let (primaryFits, secondaryFits) = findPrimaryAndSecondaryFits(
                 slots: slots,
-                graphic: graphic)
+                graphic: graphic,
+                fittingStyle: fittingStyle)
 
             guard
                 let selected = selectFit(slots: primaryFits, graphic: graphic)
@@ -114,19 +192,27 @@ extension StarField {
 
         private func findPrimaryAndSecondaryFits(
             slots: [CGRect],
-            graphic: Graphic
+            graphic: Graphic,
+            fittingStyle: NameFittingStyle
         ) -> ([CGRect], [CGRect]) {
             var primaryFits = [CGRect]()
             var secondaryFits = [CGRect]()
 
             for slot in slots {
-                guard isSlotObscured(slot, by: [graphic]) == .never else {
+                // In the exterior fitting style, the slot cannot be
+                // obscured by its own graphic. This is the most likely
+                // obscurement, so pre-check before considering
+                // other graphics.
+                if  fittingStyle == .exterior,
+                    isSlotObscured(slot, by: [graphic]) != .never
+                {
                     continue
                 }
 
                 let generalObscurement = isSlotObscured(
                     slot,
-                    by: Array(graphicsLookup.values))
+                    by: Array(graphicsLookup.values),
+                    excluding: graphic.objectId)
 
                 switch generalObscurement {
                 case .always: continue
@@ -200,11 +286,16 @@ extension StarField {
 
         private func isSlotObscured(
             _ slot: CGRect,
-            by graphics: [StarField.Graphic]
+            by graphics: [StarField.Graphic],
+            excluding excludedId: UUID? = nil
         ) -> StarField.Graphic.Shape.Obscurement {
             var result = StarField.Graphic.Shape.Obscurement.never
 
             for graphic in graphics {
+                guard graphic.objectId != excludedId else {
+                    continue
+                }
+
                 for shape in graphic.shapes {
                     guard shape.hasOverlapWithRect(slot) else { continue }
 
@@ -233,6 +324,16 @@ extension StarField {
             }
 
             return true
+        }
+
+        private func fittingStyle(
+            forNameable nameable: Nameable
+        ) -> NameFittingStyle {
+            guard let styleable = nameable as? NameFittingStyleable else {
+                return .exterior
+            }
+
+            return styleable.nameFittingStyle
         }
 
     }

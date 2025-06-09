@@ -36,7 +36,7 @@ extension StarField {
             let d = position.declination.radians
 
             let dd = sin(d0) * sin(d) + cos(d0) * cos(d) * cos(a - a0)
-            guard dd > -0.5 else {
+            guard dd >= 0 else {
                 // Object is behind the view plane.
                 return nil
             }

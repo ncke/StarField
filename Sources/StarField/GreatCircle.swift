@@ -13,12 +13,14 @@ extension StarField {
         // great circles on longitude.
         fileprivate typealias Positioner = (Angle, Angle) -> StarField.Position
 
+        let id: UUID
         let angle: Angle
         let sense: CoordinateLine.Sense
         private let wrap: [Angle]
         private let positioner: Positioner
 
-        init(angle: Angle, sense: CoordinateLine.Sense) {
+        init(id: UUID, angle: Angle, sense: CoordinateLine.Sense) {
+            self.id = id
             self.angle = angle
             self.sense = sense
             self.wrap = sense.wrappingAngles
@@ -42,7 +44,7 @@ extension StarField.GreatCircle: Plottable {
 
     private func plotCircle(
         using projector: StarField.Projector
-    ) -> StarField.Graphic {
+    ) -> StarField.Graphic? {
         // Plot all points on the great circle for this angle, some may
         // be nil if not visible in a specific star field.
         var points = wrap.map { wrappingAngle in
@@ -60,7 +62,10 @@ extension StarField.GreatCircle: Plottable {
             convertSegmentToLines(segment)
         }.flatMap { lines in lines }
 
-        return StarField.Graphic(objectId: UUID(), shapes: shapes)
+        // Return nil if the great circle is not visible whatsoever.
+        guard shapes.count > 0 else { return nil }
+
+        return StarField.Graphic(objectId: id, shapes: shapes)
     }
 
     private func extractSegments(

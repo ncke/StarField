@@ -144,17 +144,17 @@ extension StarField.Layout {
 extension StarField.Layout {
 
     func layoutNames(
-        using textResolver: TextResolver
+        using textResolver: StarField.TextResolver
     ) -> [StarField.Graphic] {
-        let nameables = objects.sorted { obj1, obj2 in
-            obj1.magnitude < obj2.magnitude
-        }
-            .compactMap { obj in
-            obj as? StarField.Nameable
-        }
+        let nameableFurniture = furniture
+            .compactMap { furn in furn as? StarField.Nameable }
+
+        let nameableObjects = objects
+            .sorted { obj1, obj2 in obj1.magnitude < obj2.magnitude }
+            .compactMap { obj in obj as? StarField.Nameable }
 
         let fitter = StarField.NamesFitter(
-            nameables: nameables,
+            nameables: nameableFurniture +  nameableObjects,
             graphics: furnitureGraphics + objectGraphics,
             viewSize: viewSize)
 
