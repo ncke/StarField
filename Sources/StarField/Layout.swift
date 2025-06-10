@@ -55,12 +55,15 @@ extension StarField {
 extension StarField.Layout {
 
     func build() {
+        print(Date.timeIntervalSinceReferenceDate, "ALL START")
         clearExistingBuiltProducts()
         buildFurniturePlots()
         buildObjectPlots()
+        print(Date.timeIntervalSinceReferenceDate, "ALL DONE")
     }
 
     private func clearExistingBuiltProducts() {
+        print(Date.timeIntervalSinceReferenceDate, "CANCELLING")
         cancellables.forEach { c in c.cancel() }
         cancellables.removeAll()
         furnitureGraphics = []
@@ -79,6 +82,7 @@ extension StarField.Layout {
             .sink(
                 receiveCompletion: {
                     [weak self] _ in
+                    print(Date.timeIntervalSinceReferenceDate, "FURN DONE")
                     self?.furnitureDone.send(true)
                     self?.checkNameReadiness()
                 },
@@ -106,6 +110,7 @@ extension StarField.Layout {
             .sink(
                 receiveCompletion: {
                     [weak self] _ in
+                    print(Date.timeIntervalSinceReferenceDate, "OBS DONE")
                     self?.objectsDone.send(true)
                     self?.checkNameReadiness()
                 },
@@ -146,6 +151,7 @@ extension StarField.Layout {
     func layoutNames(
         using textResolver: StarField.TextResolver
     ) -> [StarField.Graphic] {
+        print(Date.timeIntervalSinceReferenceDate, "NAMES START")
         let nameableFurniture = furniture
             .compactMap { furn in furn as? StarField.Nameable }
 
@@ -158,6 +164,7 @@ extension StarField.Layout {
             graphics: furnitureGraphics + objectGraphics,
             viewSize: viewSize)
 
+        print(Date.timeIntervalSinceReferenceDate, "NAMES DONE")
         return fitter.fit(textResolver: textResolver)
     }
 

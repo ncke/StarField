@@ -7,7 +7,7 @@ extension StarField {
     public struct CoordinateLine:
         Furniture,
         Nameable,
-        NameFittingStyleable,
+        NameStyleable,
         Sendable,
         Identifiable
     {
@@ -19,7 +19,11 @@ extension StarField {
         public let sense: Sense
         public let coordinate: Angle
         public let names: [String]
-        let nameFittingStyle: NameFittingStyle = .boundary
+
+        let nameStyle = StarField.NameStyle(
+            fittingStyle: .boundary,
+            textColor: \ColorScheme.coordinateTextColor,
+            textBackground: \ColorScheme.coordinateTextBackgroundColor)
     }
 
 }
@@ -37,7 +41,7 @@ extension StarField.CoordinateLine {
             Self.init(
                 sense: .latitude,
                 coordinate: Angle(degrees: degs),
-                names: ["\(degs)°"])
+                names: ["\(Int(degs))°"])
         }
     }()
 

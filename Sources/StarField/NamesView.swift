@@ -10,13 +10,14 @@ extension StarField {
 
         var body: some View {
             let nameFont = configuration.nameFont
-            let nameColor = configuration.colorScheme.nameColor
+            let cs = configuration.colorScheme
 
             Canvas { context, size in
-                let resolver: TextResolver = { string in
+                let resolver: TextResolver = { string, colorKeyPath in
+                    let color = cs[keyPath: colorKeyPath]
                     let text = Text(verbatim: string)
                         .font(nameFont)
-                        .foregroundStyle(nameColor)
+                        .foregroundStyle(color)
 
                     return context.resolve(text)
                 }

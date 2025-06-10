@@ -8,8 +8,10 @@ extension StarField {
         var backgroundColor: Color { get }
         var constellationPatternColor: Color { get }
         var coordinateLinesColor: Color { get }
-        var nameColor: Color { get }
+        var coordinateTextColor: Color { get }
+        var coordinateTextBackgroundColor: Color { get }
         var starColor: Color { get }
+        var starNameTextColor: Color { get }
     }
 
 }
@@ -21,9 +23,11 @@ extension StarField {
     public struct StandardColorScheme: ColorScheme {
         public let backgroundColor: Color = Color.rgb(240, 255, 255)
         public let constellationPatternColor = Color.rgb(192, 192, 216)
-        public let coordinateLinesColor = Color.rgb(128, 128, 128)
-        public let nameColor = Color.rgb(32, 32, 32)
+        public let coordinateLinesColor = Color.rgb(182, 182, 182)
+        public let coordinateTextColor = Color.rgb(182, 182, 182)
+        public let coordinateTextBackgroundColor = Color.rgb(240, 255, 255)
         public let starColor = Color.rgb(0, 0, 0)
+        public let starNameTextColor = Color.rgb(32, 32, 32)
 
         public init() {}
     }

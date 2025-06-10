@@ -4,14 +4,18 @@ import SwiftUI
 
 extension StarField {
 
-    public struct Star: Object, Nameable, NameFittingStyleable {
+    public struct Star: Object, Nameable, NameStyleable {
         public let id: UUID
         public let position: Position
         public let magnitude: Double
         public let isVariable: Bool
         public let isMultiple: Bool
         public let names: [String]
-        let nameFittingStyle: NameFittingStyle = .exterior
+
+        let nameStyle = StarField.NameStyle(
+            fittingStyle: .exterior,
+            textColor: \ColorScheme.starNameTextColor,
+            textBackground: nil)
 
         public init(
             id: UUID,
