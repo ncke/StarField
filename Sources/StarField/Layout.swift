@@ -33,9 +33,12 @@ extension StarField {
             viewSize: CGSize,
             projector: Projector
         ) {
-            self.objects = objects
+            self.objects = objects.sorted {
+                s1, s2 in s1.magnitude < s2.magnitude
+            }
             self.objectsIndex = Dictionary(
-                uniqueKeysWithValues: objects.map { obj in (obj.id, obj) })
+                uniqueKeysWithValues: objects.map { obj in (obj.id, obj) }
+            )
             self.furniture = furniture
             self.configuration = configuration
             self.viewCenter = viewCenter
@@ -45,6 +48,10 @@ extension StarField {
             self.minuteScale = Self.computeMinuteLength(
                 viewCenter: viewCenter,
                 projector: projector)
+        }
+
+        deinit {
+            clearExistingBuiltProducts()
         }
 
     }
@@ -72,68 +79,42 @@ extension StarField.Layout {
 
     private func buildFurniturePlots() {
         furniture
+            .publisher
             .compactMap { item in
-                guard let item = item as? Plottable else { return nil }
-                return item.plotGraphics(
+                (item as? Plottable)?.plotGraphics(
                     using: projector,
                     configuration: configuration)
             }
-            .publisher
-            .sink(
-                receiveCompletion: {
-                    [weak self] _ in
-                    print(Date.timeIntervalSinceReferenceDate, "FURN DONE")
-                    self?.furnitureDone.send(true)
-                    self?.checkNameReadiness()
-                },
-                receiveValue: {
-                    [weak self] graphic in
-                    self?.furnitureGraphics.append(graphic)
-                }
-            )
+            .collect()
+            .sink { [weak self] _ in
+                self?.furnitureDone.send(true)
+                self?.checkNameReadiness()
+            } receiveValue: { [weak self] graphics in
+                self?.furnitureGraphics = graphics
+            }
             .store(in: &cancellables)
     }
 
     private func buildObjectPlots() {
         objects
-            .compactMap {
-                obj in obj as? (any PlottableObject)
-            }
-            .sorted { s1, s2 in
-                s1.magnitude < s2.magnitude
-            }
             .publisher
-            .flatMap {
-                [weak self] object in
-                (self?.plotAndRecordObject(object)).publisher
+            .compactMap { object in
+                (object as? PlottableObject)?.plotGraphics(
+                    using: projector,
+                    configuration: configuration)
             }
+            .collect()
             .sink(
-                receiveCompletion: {
-                    [weak self] _ in
+                receiveCompletion: { _ in
                     print(Date.timeIntervalSinceReferenceDate, "OBS DONE")
-                    self?.objectsDone.send(true)
-                    self?.checkNameReadiness()
+                    self.objectsDone.send(true)
+                    self.checkNameReadiness()
                 },
-                receiveValue: { [weak self] graphic in
-                    self?.objectGraphics.append(contentsOf: graphic)
+                receiveValue: { graphics in
+                    self.objectGraphics = graphics
                 }
             )
             .store(in: &cancellables)
-    }
-
-    // TODO: This doesn't need to return an array now.
-    private func plotAndRecordObject(
-        _ object: any PlottableObject
-    ) -> [StarField.Graphic] {
-        let graphics = object.plotGraphics(
-            using: projector,
-            configuration: configuration)
-
-        if let g = graphics {
-            return [g]
-        }
-
-        return []
     }
 
     private func checkNameReadiness() {
@@ -152,12 +133,13 @@ extension StarField.Layout {
         using textResolver: StarField.TextResolver
     ) -> [StarField.Graphic] {
         print(Date.timeIntervalSinceReferenceDate, "NAMES START")
-        let nameableFurniture = furniture
-            .compactMap { furn in furn as? StarField.Nameable }
+        let nameableFurniture = furniture.compactMap {
+            furn in furn as? StarField.Nameable
+        }
 
-        let nameableObjects = objects
-            .sorted { obj1, obj2 in obj1.magnitude < obj2.magnitude }
-            .compactMap { obj in obj as? StarField.Nameable }
+        let nameableObjects = objects.compactMap {
+            obj in obj as? StarField.Nameable
+        }
 
         let fitter = StarField.NamesFitter(
             nameables: nameableFurniture +  nameableObjects,

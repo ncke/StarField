@@ -38,7 +38,7 @@ extension StarField {
         }
 
         func fit(textResolver: TextResolver) -> [StarField.Graphic] {
-            let names = nameableOrdering
+            let nameGraphics = nameableOrdering
                 .compactMap { id in nameableLookup[id] }
                 .compactMap { nameable in
                     fitNames(
@@ -47,7 +47,7 @@ extension StarField {
                 }
                 .flatMap { $0 }
 
-            return names
+            return nameGraphics
         }
 
         private func fitNames(
