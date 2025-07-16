@@ -17,6 +17,7 @@ extension StarField {
         private let nameableOrdering: [UUID]
         private let nameableLookup: [UUID: any Nameable]
         private var graphicsLookup: [UUID: StarField.Graphic]
+        private var boundaryGraphics = [Graphic]()
         private let viewSize: CGSize
 
         init(
@@ -114,10 +115,13 @@ extension StarField {
                     nameSize: nameSize,
                     viewSize: viewSize)
 
-                return fitBoundaryName(
+                let graphic = fitBoundaryName(
                     slots: slots,
                     resolvedName: resolvedName,
                     nameStyle: nameStyle)
+
+                if let graphic = graphic { boundaryGraphics.append(graphic) }
+                return graphic
             }
         }
 
@@ -126,7 +130,11 @@ extension StarField {
             resolvedName: GraphicsContext.ResolvedText,
             nameStyle: NameStyle
         ) -> StarField.Graphic? {
-            guard let slot = slots?.first else { return nil }
+            // Boundary slots are used to label coordinate lines, these
+            // labels overwrite other content except other coordinate labels.
+            guard let slot = slots?.first(where: { slot in
+                isSlotObscured(slot, by: boundaryGraphics) == .never
+            }) else { return nil }
 
             return makeGraphic(
                 rect: slot,
