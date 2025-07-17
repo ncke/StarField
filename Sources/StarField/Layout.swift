@@ -33,9 +33,9 @@ extension StarField {
             viewSize: CGSize,
             projector: Projector
         ) {
-            self.objects = objects.sorted {
-                s1, s2 in s1.magnitude < s2.magnitude
-            }
+            self.objects = Self.sortObjectsForDrawing(
+                objects,
+                configuration: configuration)
             self.objectsIndex = Dictionary(
                 uniqueKeysWithValues: objects.map { obj in (obj.id, obj) }
             )
@@ -187,6 +187,34 @@ extension StarField.Layout: StarField.NearestObjectProvider {
 
         let rootDistance = sqrt(nearestDistance)
         return (object, rootDistance)
+    }
+
+}
+
+// MARK: - Drawing Order
+
+private extension StarField.Layout {
+
+    static func sortObjectsForDrawing(
+        _ objects: [any StarField.Object],
+        configuration: StarField.Configuration
+    ) -> [any StarField.Object] {
+        objects.sorted { obj1, obj2 in
+            if !configuration.showPlanetsOnTop {
+                return obj1.magnitude < obj2.magnitude
+            }
+
+            let isPlanetObj1 = obj1 is StarField.Planet
+            let isPlanetObj2 = obj2 is StarField.Planet
+
+            if (isPlanetObj1 && isPlanetObj2)
+                || (!isPlanetObj1 && !isPlanetObj2)
+            {
+                return obj1.magnitude < obj2.magnitude
+            }
+
+            return isPlanetObj1 ? true : false
+        }
     }
 
 }

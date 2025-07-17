@@ -23,8 +23,7 @@ extension StarField {
                 return nil
             }
 
-            let shuffledAngles = angles.shuffled()
-            let slots = shuffledAngles.flatMap { angle in
+            let slots = angles.flatMap { angle in
                 let anchors = anchorsForAngle(angle)
                 let rects = anchors?.map { anchor in
                     calculateRectForNameSize(

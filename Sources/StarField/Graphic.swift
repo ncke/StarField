@@ -11,6 +11,18 @@ protocol Plottable {
     
 }
 
+extension Plottable {
+
+    func radiusForMagnitude(
+        _ magnitude: Double,
+        projector: StarField.Projector
+    ) -> CGFloat {
+        let sized = max(1.0, 8.0 - magnitude) * 1.6 // * minuteScale
+        return (0.5 * sized).rounded(.up)
+    }
+
+}
+
 // MARK: - Graphic
 
 extension StarField {
@@ -200,7 +212,8 @@ extension StarField.Graphic.Shape {
         let dx = center.x - closestX
         let dy = center.y - closestY
 
-        return (dx * dx + dy * dy) <= (radius * radius)
+        let margin = radius + 1.0
+        return (dx * dx + dy * dy) <= (margin * margin)
     }
 
 }

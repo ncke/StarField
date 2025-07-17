@@ -140,12 +140,4 @@ extension StarField.Star: Plottable {
             height: Int(height))
     }
 
-    func radiusForMagnitude(
-        _ magnitude: Double,
-        projector: StarField.Projector
-    ) -> CGFloat {
-        let sized = max(1.0, 8.0 - magnitude) * 1.6 // * minuteScale
-        return (0.5 * sized).rounded(.up)
-    }
-
 }

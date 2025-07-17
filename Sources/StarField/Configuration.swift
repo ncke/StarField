@@ -10,6 +10,7 @@ extension StarField {
         public var colorScheme: ColorScheme
         public var showNames: Bool
         public var nameFont: Font
+        public var showPlanetsOnTop: Bool
         public var tapEffectiveRadius: CGFloat?
 
         public init(
@@ -18,6 +19,7 @@ extension StarField {
             colorScheme: StarField.ColorScheme = StandardColorScheme(),
             showNames: Bool = true,
             nameFont: Font = Font.system(size: 10.0),
+            showPlanetsOnTop: Bool = true,
             tapEffectiveRadius: CGFloat = 24.0
         ) {
             self.projection = projection
@@ -25,6 +27,7 @@ extension StarField {
             self.colorScheme = colorScheme
             self.showNames = showNames
             self.nameFont = nameFont
+            self.showPlanetsOnTop = showPlanetsOnTop
             self.tapEffectiveRadius = tapEffectiveRadius
         }
     }

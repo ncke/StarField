@@ -11,6 +11,7 @@ extension StarField {
         var coordinateTextColor: Color { get }
         var coordinateTextBackgroundColor: Color { get }
         var starColor: Color { get }
+        var planetColor: Color { get }
         var starNameTextColor: Color { get }
     }
 
@@ -27,6 +28,7 @@ extension StarField {
         public let coordinateTextColor = Color.rgb(182, 182, 182)
         public let coordinateTextBackgroundColor = Color.rgb(240, 255, 255)
         public let starColor = Color.rgb(0, 0, 0)
+        public let planetColor = Color.rgb(48, 48, 48)
         public let starNameTextColor = Color.rgb(32, 32, 32)
 
         public init() {}
