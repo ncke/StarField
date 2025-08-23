@@ -27,8 +27,8 @@ extension Plottable {
 
 extension StarField {
 
-    struct Graphic {
-        let objectId: UUID
+    struct Graphic: Identifiable {
+        let id: UUID
         let shapes: [Shape]
         var obscurements: [Shape] { shapes.filter { shape in
             let obscurement = shape.obscurement

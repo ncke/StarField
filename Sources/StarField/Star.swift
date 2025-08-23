@@ -86,7 +86,7 @@ extension StarField.Star: Plottable {
 
             if hasAura {
                 wings.forEach { wing in
-                    let aura = wing.enlarge(delta: Self.auraWidth)
+                    let aura = wing.enlarged(delta: Self.auraWidth)
                     let auraRect = StarField.Graphic.Shape.rectangle(
                         rect: aura,
                         styles: [.fill(color: backgroundColor)],
@@ -122,7 +122,7 @@ extension StarField.Star: Plottable {
             shapes.append(scribedCircle)
         }
 
-        let graphic = StarField.Graphic(objectId: self.id, shapes: shapes)
+        let graphic = StarField.Graphic(id: self.id, shapes: shapes)
         return graphic
     }
 

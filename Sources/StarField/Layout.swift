@@ -179,7 +179,7 @@ extension StarField.Layout: StarField.NearestObjectProvider {
         }
 
         guard
-            let objectId = nearestGraphic?.objectId,
+            let objectId = nearestGraphic?.id,
             let object = objectsIndex[objectId]
         else {
             return nil

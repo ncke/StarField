@@ -4,7 +4,7 @@ import SwiftUI
 
 extension StarField {
 
-    public protocol Nameable {
+    public protocol Nameable: Identifiable {
         var id: UUID { get }
         var names: [String] { get }
     }

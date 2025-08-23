@@ -29,7 +29,7 @@ extension StarField {
             self.nameableOrdering = nameables.map { n in n.id }
 
             let graphicsLookup = Dictionary(
-                uniqueKeysWithValues: graphics.map { g in (g.objectId, g) })
+                uniqueKeysWithValues: graphics.map { g in (g.id, g) })
             self.graphicsLookup = graphicsLookup
 
             let visibleIds = Set(graphicsLookup.keys)
@@ -79,7 +79,7 @@ extension StarField {
                     return nil
                 }
 
-                graphicsLookup[graphic.objectId] = graphic
+                graphicsLookup[graphic.id] = graphic
                 return graphic
             }
 
@@ -151,7 +151,7 @@ extension StarField {
 
             let bg = nameStyle.textBackground ?? \ColorScheme.backgroundColor
             let backgroundShape = Graphic.Shape.rectangle(
-                rect: rect.enlarge(delta: 1.0),
+                rect: rect.enlarged(delta: 1.0),
                 styles: [.fill(color: bg)],
                 obscurement: .always)
             shapes.append(backgroundShape)
@@ -163,7 +163,7 @@ extension StarField {
                 obscurement: .always)
             shapes.append(textShape)
 
-            return Graphic(objectId: UUID(), shapes: shapes)
+            return Graphic(id: UUID(), shapes: shapes)
         }
 
         private func fitInFieldName(
@@ -214,7 +214,7 @@ extension StarField {
                 let generalObscurement = isSlotObscured(
                     slot,
                     by: Array(graphicsLookup.values),
-                    excluding: graphic.objectId)
+                    excluding: graphic.id)
 
                 switch generalObscurement {
                 case .always: continue
@@ -266,7 +266,7 @@ extension StarField {
             var nearestDistance: CGFloat?
 
             for (_, graphic) in graphicsLookup {
-                if graphic.objectId == excludingGraphic.objectId {
+                if graphic.id == excludingGraphic.id {
                     continue
                 }
 
@@ -294,7 +294,7 @@ extension StarField {
             var result = StarField.Graphic.Shape.Obscurement.never
 
             for graphic in graphics {
-                guard graphic.objectId != excludedId else {
+                guard graphic.id != excludedId else {
                     continue
                 }
 

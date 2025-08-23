@@ -76,7 +76,7 @@ extension StarField.Planet: Plottable {
             obscurement: .always)
         shapes.append(planetCircle)
 
-        let graphic = StarField.Graphic(objectId: self.id, shapes: shapes)
+        let graphic = StarField.Graphic(id: self.id, shapes: shapes)
         return graphic
     }
 

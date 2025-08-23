@@ -4,6 +4,8 @@ import SwiftUI
 
 extension StarField {
 
+    /// Provides a perspective projection of points in the sky's dome onto
+    /// the plane of the screen.
     struct GnomonicProjector: Projector {
         private let viewCenter: (Angle, Angle)
         private let viewDiameter: Angle

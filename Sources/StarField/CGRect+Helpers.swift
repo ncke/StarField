@@ -25,11 +25,11 @@ extension CGRect {
 
 extension CGRect {
 
+    typealias LinearIntersection = (Wall, CGPoint)
+
     enum Wall {
         case north, east, south, west
     }
-
-    typealias LinearIntersection = (Wall, CGPoint)
 
     func linearIntersections(
         lineStart start: CGPoint,

@@ -65,7 +65,7 @@ extension StarField.GreatCircle: Plottable {
         // Return nil if the great circle is not visible whatsoever.
         guard shapes.count > 0 else { return nil }
 
-        return StarField.Graphic(objectId: id, shapes: shapes)
+        return StarField.Graphic(id: id, shapes: shapes)
     }
 
     private func extractSegments(

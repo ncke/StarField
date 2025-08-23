@@ -49,7 +49,7 @@ extension StarField.ConstellationPattern: Plottable {
         }
 
         guard !shapes.isEmpty else { return nil }
-        return StarField.Graphic(objectId: id, shapes: shapes)
+        return StarField.Graphic(id: id, shapes: shapes)
     }
 
 }
