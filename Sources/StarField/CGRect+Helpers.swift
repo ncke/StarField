@@ -11,7 +11,7 @@ extension CGRect {
         self.init(origin: origin, size: size)
     }
 
-    func enlarge(delta: CGFloat) -> CGRect {
+    func enlarged(delta: CGFloat) -> CGRect {
         CGRect(
             x: Int(self.minX - delta),
             y: Int(self.minY - delta),
@@ -68,6 +68,10 @@ extension CGRect {
             hIntersect(y: self.minY, wall: .south),
             vIntersect(x: self.minX, wall: .west)
         ].compactMap(\.self)
+    }
+
+    func verticallyInvert(point: CGPoint) -> CGPoint {
+        CGPoint(x: point.x, y: height - point.y)
     }
 
 }

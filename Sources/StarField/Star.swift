@@ -44,7 +44,7 @@ extension StarField.Star: PlottableObject {}
 
 extension StarField.Star: Plottable {
 
-    private static let auraWidth = 1.0
+    private static let auraWidth = 0.6
 
     // TODO: Refactor to reduce function length.
     
@@ -84,7 +84,7 @@ extension StarField.Star: Plottable {
                 makeWing(plot, radius, -wingLength, 1.0)
             ]
 
-            if hasAura {
+            if false && hasAura {
                 wings.forEach { wing in
                     let aura = wing.enlarged(delta: Self.auraWidth)
                     let auraRect = StarField.Graphic.Shape.rectangle(
@@ -126,7 +126,7 @@ extension StarField.Star: Plottable {
         return graphic
     }
 
-    func makeWing(
+    private func makeWing(
         _ center: CGPoint,
         _ radius: CGFloat,
         _ width: CGFloat,

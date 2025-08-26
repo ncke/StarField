@@ -13,6 +13,9 @@ extension StarField {
         var starColor: Color { get }
         var planetColor: Color { get }
         var starNameTextColor: Color { get }
+        var clusterNameTextColor: Color { get }
+        var clusterBorderColor: Color { get }
+        var clusterInteriorColor: Color { get }
     }
 
 }
@@ -30,6 +33,9 @@ extension StarField {
         public let starColor = Color.rgb(0, 0, 0)
         public let planetColor = Color.rgb(48, 48, 48)
         public let starNameTextColor = Color.rgb(32, 32, 32)
+        public let clusterNameTextColor = Color.rgb(32, 32, 32)
+        public let clusterBorderColor = Color.rgb(0, 0, 0)
+        public let clusterInteriorColor = Color.rgb(240, 230, 130)
 
         public init() {}
     }
