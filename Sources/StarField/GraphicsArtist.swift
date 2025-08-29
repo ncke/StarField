@@ -29,6 +29,10 @@ extension StarField {
                 drawLine(start: start, finish: finish, styles: styles)
             case .circle(let center, let radius, let styles, _):
                 drawCircle(center: center, radius: radius, styles: styles)
+            case .polygon(let vertices, let styles, _):
+                drawPolygon(vertices: vertices, styles: styles)
+            case .cutout(let vertices, let cutouts, let styles, _):
+                drawCutout(vertices: vertices, cutouts: cutouts, styles: styles)
             case .text(let rect, let text, let styles, _):
                 drawText(rect: rect, text: text, styles: styles)
             }
@@ -61,6 +65,43 @@ extension StarField {
             drawPath(Path(ellipseIn: rect), with: styles)
         }
 
+        private func drawPolygon(
+            vertices: [CGPoint],
+            styles: Styles
+        ) {
+            guard vertices.count > 2 else { return }
+            let path = pathForVertices(vertices)
+            drawPath(path, with: styles)
+        }
+
+        private func drawCutout(
+            vertices: [CGPoint],
+            cutouts: [[CGPoint]],
+            styles: Styles
+        ) {
+            guard vertices.count > 2 else { return }
+            var path = pathForVertices(vertices)
+
+            for cutout in cutouts {
+                guard cutout.count > 0 else { continue }
+                let subpath = pathForVertices(cutout)
+                path.addPath(subpath)
+            }
+
+            drawPath(path, with: styles, useEOFill: true)
+        }
+
+        private func pathForVertices(_ vertices: [CGPoint]) -> Path {
+            var path = Path()
+            path.move(to: vertices[0])
+            for v in 1..<vertices.count {
+                path.addLine(to: vertices[v])
+            }
+
+            path.closeSubpath()
+            return path
+        }
+
         private func drawText(
             rect: CGRect,
             text: GraphicsContext.ResolvedText,
@@ -72,12 +113,19 @@ extension StarField {
                 anchor: .center)
         }
 
-        private func drawPath(_ path: Path, with styles: Styles) {
+        private func drawPath(
+            _ path: Path,
+            with styles: Styles,
+            useEOFill: Bool = false
+        ) {
             styles.forEach { style in
                 if case .fill(let color) = style {
                     let schemeColor = colorScheme[keyPath: color]
                     let shading = GraphicsContext.Shading.color(schemeColor)
-                    context.fill(path, with: shading)
+                    context.fill(
+                        path,
+                        with: shading,
+                        style: FillStyle(eoFill: useEOFill))
                 }
             }
 

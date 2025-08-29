@@ -200,6 +200,13 @@ private extension StarField.Layout {
         configuration: StarField.Configuration
     ) -> [any StarField.Object] {
         objects.sorted { obj1, obj2 in
+            if obj1 is StarField.Nebulosity && obj2 is StarField.Nebulosity {
+                return obj1.magnitude < obj2.magnitude
+            } else if obj1 is StarField.Nebulosity || obj2 is StarField.Nebulosity {
+                return obj1 is StarField.Nebulosity
+            }
+
+
             if !configuration.showPlanetsOnTop {
                 return obj1.magnitude < obj2.magnitude
             }

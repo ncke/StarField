@@ -11,6 +11,7 @@ extension StarField {
         public var showNames: Bool
         public var nameFont: Font
         public var showPlanetsOnTop: Bool
+        public var showMilkyWayBorder: Bool
         public var tapEffectiveRadius: CGFloat?
 
         public init(
@@ -20,6 +21,7 @@ extension StarField {
             showNames: Bool = true,
             nameFont: Font = Font.system(size: 10.0),
             showPlanetsOnTop: Bool = true,
+            showMilkyWayBorder: Bool = false,
             tapEffectiveRadius: CGFloat = 24.0
         ) {
             self.projection = projection
@@ -28,6 +30,7 @@ extension StarField {
             self.showNames = showNames
             self.nameFont = nameFont
             self.showPlanetsOnTop = showPlanetsOnTop
+            self.showMilkyWayBorder = showMilkyWayBorder
             self.tapEffectiveRadius = tapEffectiveRadius
         }
     }

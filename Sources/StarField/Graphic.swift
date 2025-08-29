@@ -75,6 +75,17 @@ extension StarField.Graphic {
             styles: [Style],
             obscurement: Obscurement)
 
+        case polygon(
+            vertices: [CGPoint],
+            styles: [Style],
+            obscurement: Obscurement)
+
+        case cutout(
+            vertices: [CGPoint],
+            cutouts: [[CGPoint]],
+            styles: [Style],
+            obscurement: Obscurement)
+
         case text(
             rect: CGRect,
             text: GraphicsContext.ResolvedText,
@@ -86,6 +97,8 @@ extension StarField.Graphic {
             case .rectangle(_, _, let obscurement): return obscurement
             case .line(_, _, _, let obscurement): return obscurement
             case .circle(_, _, _, let obscurement): return obscurement
+            case .polygon(_, _, let obscurement): return obscurement
+            case .cutout(_, _, _, let obscurement): return obscurement
             case .text(_, _, _, let obscurement): return obscurement
             }
         }
@@ -95,6 +108,8 @@ extension StarField.Graphic {
             case .rectangle(_, let styles, _): return styles
             case .line(_, _, let styles, _): return styles
             case .circle(_, _, let styles, _): return styles
+            case .polygon(_, let styles, _): return styles
+            case .cutout(_, _, let styles, _): return styles
             case .text(_, _, let styles, _): return styles
             }
         }
@@ -109,10 +124,23 @@ extension StarField.Graphic {
                     y: 0.5 * (start.y + finish.y))
             case .circle(let center, _, _, _):
                 return center
+            case .polygon(let vertices, _, _):
+                return midpoint(of: vertices)
+            case .cutout(let vertices, _, _, _):
+                return midpoint(of: vertices)
             case .text(let rect, _, _, _):
                 return CGPoint(x: rect.midX, y: rect.midY)
             }
         }
+
+        private func midpoint(of vertices: [CGPoint]) -> CGPoint {
+            let (sx, sy) = vertices.reduce((0.0, 0.0), { partial, v in
+                (partial.0 + v.x, partial.1 + v.y)
+            })
+            let vertexCount = CGFloat(vertices.count)
+            return CGPoint(x: sx / vertexCount, y: sy / vertexCount)
+        }
+
     }
 
 }
@@ -138,6 +166,12 @@ extension StarField.Graphic.Shape {
                 center: center,
                 radius: radius,
                 rect: rect)
+
+        case .polygon:
+            return false
+
+        case .cutout:
+            return false
 
         case .text(let shapeRect, _, _, _):
             return rect.intersects(shapeRect)
