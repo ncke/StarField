@@ -79,7 +79,7 @@ extension StarField.Cluster: Plottable {
                 .fill(color: interiorColor),
                 .stroke(width: 0.5, color: borderColor)
             ],
-            obscurement: .never)
+            obscurement: .always)
 
         shapes.append(mainCircle)
 
@@ -88,13 +88,13 @@ extension StarField.Cluster: Plottable {
                 start: CGPoint(x: plot.x - radius, y: plot.y),
                 finish: CGPoint(x: plot.x + radius, y: plot.y),
                 styles: [.stroke(width: 0.5, color: borderColor)],
-                obscurement: .never)
+                obscurement: .always)
 
             let v = StarField.Graphic.Shape.line(
                 start: CGPoint(x: plot.x, y: plot.y + radius),
                 finish: CGPoint(x: plot.x, y: plot.y - radius),
                 styles: [.stroke(width: 0.5, color: borderColor)],
-                obscurement: .never)
+                obscurement: .always)
 
             shapes += [h, v]
         }
