@@ -10,6 +10,7 @@ extension StarField {
         public var colorScheme: ColorScheme
         public var showNames: Bool
         public var nameFont: Font
+        public var showNamesWithSolidBackground: Bool
         public var showPlanetsOnTop: Bool
         public var showMilkyWayBorder: Bool
         public var tapEffectiveRadius: CGFloat?
@@ -20,6 +21,7 @@ extension StarField {
             colorScheme: StarField.ColorScheme = StandardColorScheme(),
             showNames: Bool = true,
             nameFont: Font = Font.system(size: 10.0),
+            showNamesWithSolidBackground: Bool = false,
             showPlanetsOnTop: Bool = true,
             showMilkyWayBorder: Bool = false,
             tapEffectiveRadius: CGFloat = 24.0
@@ -29,6 +31,7 @@ extension StarField {
             self.colorScheme = colorScheme
             self.showNames = showNames
             self.nameFont = nameFont
+            self.showNamesWithSolidBackground = showNamesWithSolidBackground
             self.showPlanetsOnTop = showPlanetsOnTop
             self.showMilkyWayBorder = showMilkyWayBorder
             self.tapEffectiveRadius = tapEffectiveRadius

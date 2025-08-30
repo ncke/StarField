@@ -24,6 +24,11 @@ extension StarField {
         var milkyWayInteriorTwoColor: Color { get }
         var milkyWayInteriorThreeColor: Color { get }
         var milkyWayInteriorFourColor: Color { get }
+        var nebulaNameColor: Color { get }
+        var diffuseNebulaBorderColor: Color { get }
+        var diffuseNebulaInteriorColor: Color { get }
+        var darkNebulaBorderColor: Color { get }
+        var darkNebulaInteriorColor: Color { get }
     }
 
 }
@@ -52,6 +57,11 @@ extension StarField {
 //        public let milkyWayInteriorTwoColor = Color.rgb(195, 255, 255)
 //        public let milkyWayInteriorThreeColor = Color.rgb(180, 255, 255)
 //        public let milkyWayInteriorFourColor = Color.rgb(165, 255, 255)
+        public let nebulaNameColor = Color.rgb(32, 32, 32)
+        public let diffuseNebulaBorderColor = Color.rgb(0, 0, 0)
+        public let diffuseNebulaInteriorColor = Color.rgb(240, 230, 130)
+        public let darkNebulaBorderColor = Color.rgb(0, 0, 0)
+        public let darkNebulaInteriorColor = Color.rgb(255, 255, 255)
 
         public let milkyWayBorderColor = Color.rgb(128, 128, 128)
         public let milkyWayInteriorZeroColor = Color.rgb(240, 230, 130)

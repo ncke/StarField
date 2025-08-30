@@ -19,11 +19,13 @@ extension StarField {
         private var graphicsLookup: [UUID: StarField.Graphic]
         private var boundaryGraphics = [Graphic]()
         private let viewSize: CGSize
+        private let configuration: StarField.Configuration
 
         init(
             nameables: [any Nameable],
             graphics: [StarField.Graphic],
-            viewSize: CGSize
+            viewSize: CGSize,
+            configuration: StarField.Configuration
         ) {
             self.viewSize = viewSize
             self.nameableOrdering = nameables.map { n in n.id }
@@ -36,6 +38,8 @@ extension StarField {
             self.nameableLookup = Dictionary(
                 uniqueKeysWithValues: nameables.compactMap {
                     n in visibleIds.contains(n.id) ? (n.id, n) : nil })
+
+            self.configuration = configuration
         }
 
         func fit(textResolver: TextResolver) -> [StarField.Graphic] {
@@ -139,22 +143,28 @@ extension StarField {
             return makeGraphic(
                 rect: slot,
                 text: resolvedName,
-                nameStyle: nameStyle)
+                nameStyle: nameStyle,
+                showSolidBackground: true)
         }
 
         private func makeGraphic(
             rect: CGRect,
             text: GraphicsContext.ResolvedText,
-            nameStyle: NameStyle
+            nameStyle: NameStyle,
+            showSolidBackground: Bool
         ) -> Graphic {
             var shapes = [Graphic.Shape]()
 
-            let bg = nameStyle.textBackground ?? \ColorScheme.backgroundColor
-            let backgroundShape = Graphic.Shape.rectangle(
-                rect: rect.enlarged(delta: 1.0),
-                styles: [.fill(color: bg)],
-                obscurement: .always)
-            shapes.append(backgroundShape)
+            if showSolidBackground {
+                let bg = nameStyle.textBackground
+                    ?? \ColorScheme.backgroundColor
+
+                let backgroundShape = Graphic.Shape.rectangle(
+                    rect: rect.enlarged(delta: 1.0),
+                    styles: [.fill(color: bg)],
+                    obscurement: .always)
+                shapes.append(backgroundShape)
+            }
 
             let textShape = Graphic.Shape.text(
                 rect: rect,
@@ -189,7 +199,8 @@ extension StarField {
             return makeGraphic(
                 rect: selected,
                 text: resolvedName,
-                nameStyle: nameStyle)
+                nameStyle: nameStyle,
+                showSolidBackground: configuration.showNamesWithSolidBackground)
         }
 
         private func findPrimaryAndSecondaryFits(

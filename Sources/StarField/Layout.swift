@@ -172,7 +172,8 @@ extension StarField.Layout {
         let fitter = StarField.NamesFitter(
             nameables: nameableFurniture +  nameableObjects,
             graphics: furnitureGraphics + objectGraphics,
-            viewSize: viewSize)
+            viewSize: viewSize,
+            configuration: configuration)
 
         print(Date.timeIntervalSinceReferenceDate, "NAMES DONE")
         return fitter.fit(textResolver: textResolver)

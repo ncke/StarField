@@ -14,7 +14,7 @@ extension StarField {
         public let magnitude: Double
         public let apparentDiameter: Angle
         public let boundary: [Position]
-        public let holes: [[Position]]
+        public let holes: [[Position]]?
         public let type: NebulosityType
         public let names: [String]
 
@@ -29,7 +29,7 @@ extension StarField {
             magnitude: Double,
             apparentDiameter: Angle,
             boundary: [Position],
-            holes: [[Position]],
+            holes: [[Position]]?,
             type: NebulosityType,
             names: [String]
         ) {
@@ -59,25 +59,28 @@ extension StarField.Nebulosity: Plottable {
         using projector: any StarField.Projector,
         configuration: StarField.Configuration
     ) -> StarField.Graphic? {
-        let borderColor = \StarField.ColorScheme.milkyWayBorderColor
-        let interiorColor = interiorColorForMagnitude(magnitude)
+        let borderColor = borderColor()
+        let interiorColor = interiorColor()
         let vertices = pointsForPositions(boundary, using: projector)
-        let cutouts = holes.map { positions in
+        let cutouts = holes?.map { positions in
             pointsForPositions(positions, using: projector)
         }
 
         var styles = [
             StarField.Graphic.Shape.Style.fill(color: interiorColor)
         ]
-        if configuration.showMilkyWayBorder {
+
+        if type != .milkyway || configuration.showMilkyWayBorder {
             styles += [
-                StarField.Graphic.Shape.Style.stroke(width: 0.5, color: borderColor)
+                StarField.Graphic.Shape.Style.stroke(
+                    width: 0.5,
+                    color: borderColor)
             ]
         }
 
         let shape = StarField.Graphic.Shape.cutout(
             vertices: vertices,
-            cutouts: cutouts,
+            cutouts: cutouts ?? [],
             styles: styles,
             obscurement: .never)
 
@@ -85,9 +88,23 @@ extension StarField.Nebulosity: Plottable {
         return graphic
     }
 
-    private func interiorColorForMagnitude(
-        _ magnitude: Double
-    ) -> KeyPath<StarField.ColorScheme, Color> {
+    private func borderColor() -> KeyPath<StarField.ColorScheme, Color> {
+        switch type {
+        case .diffuse: return \StarField.ColorScheme.diffuseNebulaBorderColor
+        case .dark: return \StarField.ColorScheme.darkNebulaBorderColor
+        case .milkyway: return \StarField.ColorScheme.milkyWayBorderColor
+        }
+    }
+
+    private func interiorColor() -> KeyPath<StarField.ColorScheme, Color> {
+        switch type {
+        case .diffuse: return \StarField.ColorScheme.diffuseNebulaInteriorColor
+        case .dark: return \StarField.ColorScheme.darkNebulaInteriorColor
+        case .milkyway: return interiorColorForMilkyWay()
+        }
+    }
+
+    private func interiorColorForMilkyWay() -> KeyPath<StarField.ColorScheme, Color> {
         switch magnitude {
         case 0.0: return \StarField.ColorScheme.milkyWayInteriorZeroColor
         case 1.0: return \StarField.ColorScheme.milkyWayInteriorOneColor
