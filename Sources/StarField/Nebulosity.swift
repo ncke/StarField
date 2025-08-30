@@ -5,12 +5,17 @@ import SwiftUI
 extension StarField {
 
     public struct Nebulosity: Object, Nameable, NameStyleable {
+        public enum NebulosityType {
+            case milkyway, diffuse, dark
+        }
+
         public let id: UUID
         public let position: Position
         public let magnitude: Double
         public let apparentDiameter: Angle
         public let boundary: [Position]
         public let holes: [[Position]]
+        public let type: NebulosityType
         public let names: [String]
 
         let nameStyle = StarField.NameStyle(
@@ -25,6 +30,7 @@ extension StarField {
             apparentDiameter: Angle,
             boundary: [Position],
             holes: [[Position]],
+            type: NebulosityType,
             names: [String]
         ) {
             self.id = id
@@ -33,6 +39,7 @@ extension StarField {
             self.apparentDiameter = apparentDiameter
             self.boundary = boundary
             self.holes = holes
+            self.type = type
             self.names = names
         }
 
@@ -104,6 +111,16 @@ extension StarField.Nebulosity: Plottable {
                 x: plotAsFloat.x.rounded(),
                 y: plotAsFloat.y.rounded())
         }
+    }
+
+}
+
+// MARK: - Plotting Layer
+
+extension StarField.Nebulosity {
+
+    func plottingLayer() -> PlottingLayer {
+        type == .milkyway ? .milkyway : .object
     }
 
 }

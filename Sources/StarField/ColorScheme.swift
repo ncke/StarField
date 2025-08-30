@@ -46,19 +46,19 @@ extension StarField {
         public let clusterInteriorColor = Color.rgb(240, 230, 130)
         public let planetaryNebulaNameColor = Color.rgb(32, 32, 32)
         public let planetaryNebulaColor = Color.rgb(0, 0, 0)
-        public let milkyWayBorderColor = Color.rgb(128, 128, 128)
-        public let milkyWayInteriorZeroColor = Color.rgb(225, 255, 255)
-        public let milkyWayInteriorOneColor = Color.rgb(210, 255, 255)
-        public let milkyWayInteriorTwoColor = Color.rgb(195, 255, 255)
-        public let milkyWayInteriorThreeColor = Color.rgb(180, 255, 255)
-        public let milkyWayInteriorFourColor = Color.rgb(165, 255, 255)
-
 //        public let milkyWayBorderColor = Color.rgb(128, 128, 128)
-//        public let milkyWayInteriorZeroColor = Color.rgb(240, 230, 130)
-//        public let milkyWayInteriorOneColor = Color.rgb(200, 230, 130)
-//        public let milkyWayInteriorTwoColor = Color.rgb(160, 230, 130)
-//        public let milkyWayInteriorThreeColor = Color.rgb(120, 230, 130)
-//        public let milkyWayInteriorFourColor = Color.rgb(80, 230, 130)
+//        public let milkyWayInteriorZeroColor = Color.rgb(225, 255, 255)
+//        public let milkyWayInteriorOneColor = Color.rgb(210, 255, 255)
+//        public let milkyWayInteriorTwoColor = Color.rgb(195, 255, 255)
+//        public let milkyWayInteriorThreeColor = Color.rgb(180, 255, 255)
+//        public let milkyWayInteriorFourColor = Color.rgb(165, 255, 255)
+
+        public let milkyWayBorderColor = Color.rgb(128, 128, 128)
+        public let milkyWayInteriorZeroColor = Color.rgb(240, 230, 130)
+        public let milkyWayInteriorOneColor = Color.rgb(200, 230, 130)
+        public let milkyWayInteriorTwoColor = Color.rgb(160, 230, 130)
+        public let milkyWayInteriorThreeColor = Color.rgb(120, 230, 130)
+        public let milkyWayInteriorFourColor = Color.rgb(80, 230, 130)
 
         public init() {}
     }

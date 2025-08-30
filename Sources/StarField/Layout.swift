@@ -20,6 +20,7 @@ extension StarField {
         private var objectsDone = CurrentValueSubject<Bool, Never>(false)
         private var furnitureDone = CurrentValueSubject<Bool, Never>(false)
 
+        @Published var milkywayGraphics = [Graphic]()
         @Published var furnitureGraphics = [Graphic]()
         @Published var objectGraphics = [Graphic]()
         @Published var isReadyForNames = false
@@ -66,6 +67,7 @@ extension StarField.Layout {
         clearExistingBuiltProducts()
         buildFurniturePlots()
         buildObjectPlots()
+        buildMilkyWayPlots()
         print(Date.timeIntervalSinceReferenceDate, "ALL DONE")
     }
 
@@ -75,6 +77,27 @@ extension StarField.Layout {
         cancellables.removeAll()
         furnitureGraphics = []
         objectGraphics = []
+        milkywayGraphics = []
+    }
+
+    private func buildMilkyWayPlots() {
+        objects
+            .publisher
+            .compactMap { object in
+                guard
+                    let object = object as? Plottable,
+                    object.plottingLayer() == .milkyway
+                else { return nil }
+
+                return object.plotGraphics(
+                    using: projector,
+                    configuration: configuration)
+            }
+            .collect()
+            .sink { [weak self] graphics in
+                self?.milkywayGraphics = graphics
+            }
+            .store(in: &cancellables)
     }
 
     private func buildFurniturePlots() {
@@ -99,7 +122,12 @@ extension StarField.Layout {
         objects
             .publisher
             .compactMap { object in
-                (object as? PlottableObject)?.plotGraphics(
+                guard
+                    let object = object as? Plottable,
+                    object.plottingLayer() == .object
+                else { return nil }
+
+                return object.plotGraphics(
                     using: projector,
                     configuration: configuration)
             }

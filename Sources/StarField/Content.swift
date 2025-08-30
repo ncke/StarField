@@ -77,6 +77,7 @@ private extension StarField {
 
         var body: some View {
             ZStack {
+                GraphicsView(graphics: $layout.milkywayGraphics)
                 GraphicsView(graphics: $layout.furnitureGraphics)
                 GraphicsView(graphics: $layout.objectGraphics)
                 if layout.isReadyForNames { NamesView(layout: layout) }
